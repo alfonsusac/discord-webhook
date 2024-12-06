@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
+import { Commissioner } from "next/font/google";
 import localFont from "next/font/local";
-import "./globals.css";
+import "../globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
+  src: "../fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
 });
+const sans = Commissioner({
+  variable: "--font-sans"
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,9 +25,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${ sans.variable } ${ geistMono.variable } antialiased ${ sans.className } bg-discord-background`}
       >
-        {children}
+        <div className="w-full min-h-screen">
+          <div className="min-h-screen mx-4">
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );

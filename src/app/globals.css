@@ -3,19 +3,35 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 255, 255, 255;
+  --foreground: 23, 23, 23;
+  --discord-oklab-bg: oklab(0.999994 0.0000455678 0.0000200868)
+  --discord-oklab-fg: oklab(0.321044 -0.000249296 -0.00927344)
+  --discord-rgb-button: 84, 97, 232;
 }
+
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 10, 10, 10;
+    --foreground: 237, 237, 237;
+    --discord-oklab-bg: oklab(0.321044 -0.000249296 -0.00927344);
+    --discord-oklab-fg: oklab(0.89908 -0.00192907 -0.0048306);
+    --discord-rgb-button:  88, 101, 242
   }
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: rgba(var(--foreground), 1);
+  background: rgba(var(--background), 1);
   font-family: Arial, Helvetica, sans-serif;
+  /* font-size: 0.8em; */
 }
+
+
+html {
+  scrollbar-gutter: stable;
+}
+
+
+
