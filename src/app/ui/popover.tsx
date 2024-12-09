@@ -56,6 +56,17 @@ export function openPopover(id: string, where?: MouseEvent) {
   }
 }
 
+export function closePopover(id: string) {
+  return () => {
+    const popover = document.getElementById(id)
+    if (!popover) return
+    const backdrop = document.getElementById(id + '-backdrop')
+    popover.removeAttribute('data-open')
+    backdrop?.removeAttribute('data-open')
+    removeBodyOverflowHidden(id)
+  }
+}
+
 export function PopoverItem({ className, ...props }: ComponentProps<"li">) {
   return (
     <li
@@ -68,6 +79,6 @@ export function PopoverItem({ className, ...props }: ComponentProps<"li">) {
         className
       )}
       {...props}
-    >Remove Content</li>
+    />
   )
 }

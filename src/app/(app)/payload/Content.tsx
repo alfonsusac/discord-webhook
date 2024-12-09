@@ -1,4 +1,4 @@
-import { openPopover, PopoverItem, PopoverMenu } from "@/app/ui/popover"
+import { closePopover, openPopover, PopoverItem, PopoverMenu } from "@/app/ui/popover"
 import { Dialog, DialogBack, DialogClose, DialogMenu, useDialog } from "@/app/ui/dialog"
 import { Label } from "@/app/ui/label"
 import { Textarea, useTextarea } from "@/app/ui/textarea"
@@ -43,6 +43,7 @@ export function ContentEditor(props: {
           openDialog()
           if (content === undefined) textareaRef.current!.value = ""
           resizeTextArea()
+          setContent('')
         }}
         onContextMenu={(ev) => {
           ev.preventDefault()
@@ -127,6 +128,7 @@ export function ContentEditor(props: {
             <DialogMenu className="peer rounded-md" onClick={openPopover("edit-content-menu")} />
             <PopoverMenu id="edit-content-menu" className="absolute top-full right-0">
               <PopoverItem onClick={() => {
+                closePopover("edit-content-menu")()
                 setContent(undefined)
                 closeDialog()
               }} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
@@ -146,7 +148,21 @@ export function ContentEditor(props: {
         />
       </Dialog>
       <PopoverMenu id="content-context-menu" className="fixed">
-        <PopoverItem onClick={removeContent} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
+        {content !== undefined && (
+          <PopoverItem onClick={() => {
+            closePopover("content-context-menu")()
+            removeContent()
+          }} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
+        )}
+        {content === undefined && (
+          <PopoverItem onClick={() => {
+            closePopover("content-context-menu")()
+            openDialog()
+            if (content === undefined) textareaRef.current!.value = ""
+            resizeTextArea()
+            setContent('')
+          }}>Add Content</PopoverItem>
+        )}
       </PopoverMenu>
     </>
   )

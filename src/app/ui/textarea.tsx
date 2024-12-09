@@ -46,5 +46,4 @@ export function useTextarea() {
   }
 
   return [textAreaRef, resizeTextArea] as const
-
 }
