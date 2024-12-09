@@ -1,4 +1,4 @@
-import { App, onClickConsoleLog } from "./client";
+import { App } from "./App";
 
 export default function Home() {
   console.log("Server?")

@@ -59,6 +59,8 @@ export function Dialog(
           "[&>header]:sticky",
           "[&>header]:top-0",
 
+          "overflow-visible",
+
           "[&>footer]:mt-5",
           "[&>footer]:-mx-5",
           "[&>footer]:-mb-5",
@@ -87,13 +89,7 @@ export function useDialog(callback?: {
     if (!dialog) return
     dialog.close()
   }
-  const resize = (height: number) => {
-    // const dialog = ref.current
-    // if (!dialog) return
-    // // dialog.style.height = height + 'px'
-    // // dialog.style.minHeight = height + 'px'
-  }
-  return [ref, open, close, resize] as const
+  return [ref, open, close] as const
 }
 
 export function DialogCircleButton(props: ComponentProps<"div">) {

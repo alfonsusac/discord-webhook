@@ -32,9 +32,7 @@ export function ContentEditor(props: {
 
   const [textareaRef, resizeTextArea] = useTextarea()
 
-  const [dialogRef, openDialog, closeDialog, resizeDialog] = useDialog({ onOpen: resizeTextArea })
-
-  useVisualViewportHeight(resizeDialog)
+  const [dialogRef, openDialog, closeDialog] = useDialog({ onOpen: resizeTextArea })
 
   return (
     <>
@@ -49,6 +47,8 @@ export function ContentEditor(props: {
         }}
       >
         <span className="whitespace-pre-line min-w-0 leading-relaxed
+          select-none
+
           [&_.d-emoji]:w-5
           [&_.d-emoji]:inline
 
