@@ -5,9 +5,12 @@
 :root {
   --background: 255, 255, 255;
   --foreground: 23, 23, 23;
-  --discord-oklab-bg: oklab(0.999994 0.0000455678 0.0000200868)
-  --discord-oklab-fg: oklab(0.321044 -0.000249296 -0.00927344)
+  --discord-oklab-bg: 0.999994 0.0000455678 0.0000200868;
+  --discord-oklab-fg: 0.321044 -0.000249296 -0.00927344;
   --discord-rgb-button: 84, 97, 232;
+  --discord-oklab-mention: oklab(0.57738 0.0140701 -0.208587 / 0.15);
+  --discord-oklab-link: 0.553338 -0.042478 -0.200934;
+  --discord-oklab-popover: 0.999994 0.0000455678 0.0000200868
 }
 
 
@@ -15,9 +18,12 @@
   :root {
     --background: 10, 10, 10;
     --foreground: 237, 237, 237;
-    --discord-oklab-bg: oklab(0.321044 -0.000249296 -0.00927344);
-    --discord-oklab-fg: oklab(0.89908 -0.00192907 -0.0048306);
-    --discord-rgb-button:  88, 101, 242
+    --discord-oklab-bg: 0.321044 -0.000249296 -0.00927344;
+    --discord-oklab-fg: 0.89908 -0.00192907 -0.0048306;
+    --discord-rgb-button:  88, 101, 242;
+    --discord-oklab-mention: oklab(0.57738 0.0140701 -0.208587 / 0.3);
+    --discord-oklab-link: 0.705515 -0.0795695 -0.144235;
+    --discord-oklab-popover: 0.181946 -0.000415117 -0.00436524
   }
 }
 

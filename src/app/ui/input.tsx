@@ -8,6 +8,7 @@ export function Input(
     <input
       {...props}
       className={cn(
+        "min-w-0",
         "px-3 py-2 rounded-md",
         "bg-black/30",
         "text-foreground antialiased",

@@ -1,39 +1,47 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { useEffect, useState } from "react"
-import { Input } from "../ui/input"
+import { useState } from "react"
 import { Div } from "../ui/div"
 import { Row } from "../ui/row"
-import { Button } from "../ui/button"
-import { Label } from "../ui/label"
-import { Embed, EmbedText, EmbedTitle } from "../ui/discord/embed"
 import { WebhookURLInput } from "./WebhookURL"
 import { ContentEditor } from "./payload/Content"
+import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10"
 
 export function App() {
 
   const [webhookUrl, setWebhookUrl] = useState<string>("")
 
-  const [payload, setPayload] = useState({})
+  const [payload, setPayload] = useState<RESTPostAPIWebhookWithTokenJSONBody>({})
 
   return (
     <>
 
       <Div>
         {/* Webhook URL */}
-        <WebhookURLInput />
+        <WebhookURLInput
+          onChange={setWebhookUrl}
+          onSend={async () => {
+            // Emulate error after delay 1000ms
+            await fetch(webhookUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            })
+          }}
+        />
 
         {/* Webhook Editor */}
         <Div className="mt-8">
           {/* Message */}
-          <Row className="pl-[4.5rem] relative">
+          <Row className="pl-[3.5rem] relative">
             {/* PFP */}
-            <div className="rounded-full overflow-hidden absolute left-4 top-0.5">
-              <img src="https://cdn.discordapp.com/embed/avatars/0.png" width="40" height="40" />
+            <div className="rounded-full overflow-hidden absolute left-0 top-0.5">
+              <img src="https://cdn.discordapp.com/embed/avatars/0.png" width="40" height="40" alt="" />
             </div>
             {/* Text */}
-            <Div className="grow gap-1">
+            <Div className="grow gap-1 min-w-0">
               {/* Auhor */}
               <span className="font-bold tracking-tight">Ray So Spidey Bot
                 <span className="mx-1.5 text-xs p-1 py-0.5 align-[2px] bg-discord-button rounded-md">APP</span>
@@ -41,7 +49,9 @@ export function App() {
               </span>
 
               {/* Content */}
-              <ContentEditor/>
+              <ContentEditor onChange={(content) => {
+                setPayload(prev => ({ ...prev, content }))
+              }} />
 
               {/* Embed */}
               {/* <Div className="mt-1">
@@ -69,4 +79,8 @@ Keep in mind that Discohook can't do automation yet, it only sends messages when
       </Div>
     </>
   )
+}
+
+export function onClickConsoleLog() {
+  console.log("Hello World")
 }

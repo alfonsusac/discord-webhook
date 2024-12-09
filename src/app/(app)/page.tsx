@@ -1,6 +1,7 @@
-import { App } from "./client";
+import { App, onClickConsoleLog } from "./client";
 
 export default function Home() {
+  console.log("Server?")
   return (
     <div className="max-w-2xl mx-auto min-h-screen pb-72">
       <header className="py-12">
