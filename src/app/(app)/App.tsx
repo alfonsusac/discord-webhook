@@ -17,7 +17,6 @@ export function App() {
 
   return (
     <>
-
       <Div>
         {/* Webhook URL */}
         <WebhookURLInput
@@ -52,6 +51,10 @@ export function App() {
               <ContentEditor onChange={(content) => {
                 setPayload(prev => ({ ...prev, content }))
               }} />
+
+              {/* <EmbedEditor onChange
+              
+              /> */}
 
               {/* Embed */}
               {/* <Div className="mt-1">

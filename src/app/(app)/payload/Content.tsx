@@ -28,7 +28,9 @@ export function ContentEditor(props: {
   initial?: string,
   onChange?: (content: string | undefined) => void
 }) {
-  const [content, setContent] = useState(initialContent)
+  const [content, setContent] = useState<string | undefined>(initialContent)
+
+  const removeContent = () => setContent(undefined)
 
   const [textareaRef, resizeTextArea] = useTextarea()
 
@@ -39,6 +41,7 @@ export function ContentEditor(props: {
       <div className="p-2 py-1 -mx-2 -my-1 hover:bg-white/5 rounded-md whitespace-pre -line cursor-pointer relative outline-2 outline-transparent data-[state]:hover:bg-transparent flex overflow-hidden min-w-0 *:min-w-0 break-words"
         onClick={() => {
           openDialog()
+          if (content === undefined) textareaRef.current!.value = ""
           resizeTextArea()
         }}
         onContextMenu={(ev) => {
@@ -104,7 +107,7 @@ export function ContentEditor(props: {
         ">
           {content === ""
             ? <span className="text-foreground/30 font-medium">Click to edit content</span>
-            : <span className="" dangerouslySetInnerHTML={{
+            : content ? <span className="" dangerouslySetInnerHTML={{
               __html: toHTML(content, {
                 discordCallback: {
                   channel: ({ id }) => `<span class="bg-discord-mention px-1 rounded-sm font-medium text-foreground"><span class="opacity-60 mr-1"># Channel:</span>${ id }</span>`,
@@ -113,7 +116,7 @@ export function ContentEditor(props: {
                   timestamp: ({ timestamp, style }) => `<span class="bg-discord-foreground/10 px-1 rounded-sm text-foreground">${ new Date(timestamp * 1000).toLocaleDateString() } <span class="text-xs align-top opacity-40">${ style === "R" ? "Relative" : "Full" }</span></span>`,
                 }
               })
-            }} />}
+            }} /> : <span className="text-foreground/30 font-medium">Click to add content</span>}
         </span>
       </div>
       <Dialog ref={dialogRef} onClose={closeDialog} className="overflow-visible">
@@ -123,7 +126,10 @@ export function ContentEditor(props: {
           <div className="relative">
             <DialogMenu className="peer rounded-md" onClick={openPopover("edit-content-menu")} />
             <PopoverMenu id="edit-content-menu" className="absolute top-full right-0">
-              <PopoverItem className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
+              <PopoverItem onClick={() => {
+                setContent(undefined)
+                closeDialog()
+              }} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
             </PopoverMenu>
           </div>
           <DialogClose onClick={closeDialog} />
@@ -140,7 +146,7 @@ export function ContentEditor(props: {
         />
       </Dialog>
       <PopoverMenu id="content-context-menu" className="fixed">
-        <PopoverItem className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
+        <PopoverItem onClick={removeContent} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
       </PopoverMenu>
     </>
   )

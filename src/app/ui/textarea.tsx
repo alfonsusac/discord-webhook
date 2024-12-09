@@ -37,9 +37,10 @@ export function Textarea(
 export function useTextarea() {
   const textAreaRef = useRef<HTMLTextAreaElement>(null)
 
-  function resizeTextArea() {
+  function resizeTextArea(value?: string) {
     const textArea = textAreaRef.current
     if (!textArea) return
+    if (value !== undefined) return textArea.value = value
     textArea.style.height = "auto"
     textArea.style.height = textArea.scrollHeight + "px"
   }
