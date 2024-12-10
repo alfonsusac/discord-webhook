@@ -141,7 +141,6 @@ export function ContentEditor(props: {
       <Dialog ref={dialogRef} onClose={closeDialog} className="overflow-visible">
         <header>
           <DialogBack onClick={closeDialog} />
-          {/* <div className="grow"/> */}
           <div className="grow overflow-hidden truncate">Edit Content</div>
 
           <div className="ml-auto flex">
