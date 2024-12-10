@@ -15,7 +15,11 @@ export function HoverActionGroup(
         "hover:shadow-xl",
         "hover:border-foreground/20",
         "gap-0.5 self-end flex-initial",
-        "opacity-0 group-hover:opacity-100",
+
+        "opacity-100 mobile:opacity-0 group-hover:opacity-100",
+        // "pointer-events-none",
+        // "focus:pointer-events-auto",
+
         className,
       )}
       {...props}

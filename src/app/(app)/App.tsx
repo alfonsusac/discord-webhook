@@ -9,10 +9,11 @@ import { WebhookURLInput, type WebhookData } from "./WebhookURL"
 import { ContentEditor } from "./payload/Content"
 import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10"
 import { AuthorEditor } from "./payload/Author"
+import { AvatarEditor } from "./payload/Avatar"
 
 export function App() {
 
-  const [webhook, setWebhook] = useState<WebhookData>()
+  const [webhook, setWebhook] = useState<WebhookData | null>()
 
   const payloadRef = useRef<RESTPostAPIWebhookWithTokenJSONBody>({})
 
@@ -54,25 +55,16 @@ export function App() {
           <Row className="pl-[3.5rem] relative">
             {/* Text */}
             <Div className="grow gap-1 min-w-0">
-              {/* Avatar */}
-              <div className="rounded-full overflow-hidden absolute left-0 top-0.5 
-      outline outline-0 outline-foreground/10 hover:outline-foreground/20
-      hover:outline-4 cursor-pointer
-      ">
-                <img src="https://cdn.discordapp.com/embed/avatars/0.png" width="40" height="40" alt="" />
-              </div>
-              {/* Auhor */}
+              <AvatarEditor
+                avatar={webhook?.avatar ?? "https://cdn.discordapp.com/embed/avatars/0.png"}
+                onChange={(author) => { payloadRef.current.avatar_url = author }}
+              />
               <AuthorEditor
                 author={webhook?.name}
-                onChange={(author) => {
-                  payloadRef.current.username = author
-                }}
+                onChange={(author) => { payloadRef.current.username = author }}
               />
-
-              {/* Content */}
-              <ContentEditor onChange={(content) => {
-                payloadRef.current.content = content
-              }}
+              <ContentEditor
+                onChange={(content) => { payloadRef.current.content = content }}
                 initial={`Here’s a message using Discord’s markdown and formatting:
 Text: Text | Bold: **Bold** | Italic: *Italic* | Underline: __Underline__ | Strikethrough: ~~Strikethrough~~ | Code: \`Code\` | Spoiler: ||Spoiler|| | Link: [Link](https://discord.com) | Emojis: 🎨 | Custom emoji: <:meow_coffee:753870956811911219>
 Code Block:

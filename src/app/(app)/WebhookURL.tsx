@@ -16,7 +16,7 @@ export type WebhookData = {
 
 export function WebhookURLInput(
   props: {
-    onChange?: (webhookData: WebhookData) => void,
+    onChange?: (webhookData: WebhookData | null) => void,
     onSend?: (
       webhookUrl: string,
     ) => Promise<void>
@@ -81,6 +81,7 @@ export function WebhookURLInput(
           onChange={(event) => {
             const value = event.target.value.trimStart().trimEnd()
             setWebhookUrl(value)
+            props.onChange?.(null)
             localStorage.setItem("webhookUrl", value)
           }}
         />
