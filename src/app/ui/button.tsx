@@ -19,6 +19,7 @@ export function Button(
         "disabled:opacity-60",
         "disabled:saturate-[0.7]",
         "disabled:pointer-events-none",
+        "select-none",
         className,
       )}
     />

@@ -25,11 +25,14 @@ export function Dialog(
             isMouseInsideMouseUp = isPointerEventInsideRect(rect, event),
             isMouseInsideMouseDown = isPointerEventInsideRect(rect, initialEventPos.current)
 
-          if (!isMouseInsideMouseUp && !isMouseInsideMouseDown)
+          if (!isMouseInsideMouseUp && !isMouseInsideMouseDown) {
+            event.currentTarget.close()
             onClose?.()
+          }
         })}
         className={cn(
           "flex flex-col pointer-events-none open:pointer-events-auto",
+          "select-none",
 
           "transition-all",
           "opacity-0 open:opacity-100",
@@ -40,9 +43,8 @@ export function Dialog(
 
           "backdrop:bg-black/30 backdrop:animate-in backdrop:fade-in-80",
 
-
           "bg-discord-background text-discord-foreground",
-          "p-5 shadow-lg outline-none border-none",
+          "p-4 shadow-lg outline-none border-none",
           "rounded-none mobile:rounded-md",
           "m-0 mobile:m-auto",
           "w-full max-w-mobile",
@@ -50,14 +52,18 @@ export function Dialog(
           "h-[100svh] mobile:h-min",
           "max-h-none mobile:max-h-[calc(100svh_-_2rem)]",
 
+          // "pt-0",
           "[&>header]:text-lg",
           "[&>header]:font-semibold",
           "[&>header]:pb-3",
           "[&>header]:shrink-0",
-
-          "overflow-y-auto",
-          "[&>header]:sticky",
-          "[&>header]:top-0",
+          "[&>header]:flex",
+          "[&>header]:items-center",
+          "[&>header]:w-full",
+          "[&>header]:gap-1",
+          "[&>header]:min-h-8",
+          // "[&>header]:pt-4",
+          // "mobile:[&>header]:pt-4",
 
           "overflow-visible",
 
@@ -66,6 +72,7 @@ export function Dialog(
           "[&>footer]:-mb-5",
           "[&>footer]:p-5",
           "[&>footer]:bg-black/10",
+          
           className,
         )}
         {...props}
@@ -97,7 +104,7 @@ export function DialogCircleButton(props: ComponentProps<"div">) {
     <div
       {...props}
       className={cn(
-        "rounded-full hover:bg-black/10 cursor-pointer w-10 h-10 p-2 [&>svg]:w-full [&>svg]:h-full",
+        "rounded-full hover:bg-black/10 cursor-pointer w-10 h-10 p-2 [&>svg]:w-full [&>svg]:h-full shrink-0",
         // "focus-visible:outline-discord-button focus-visible:outline-2 focus-visible:outline",
         props.className
       )}
@@ -107,7 +114,7 @@ export function DialogCircleButton(props: ComponentProps<"div">) {
 
 export function DialogBack({ className, ...props }: ComponentProps<"div">) {
   return (
-    <DialogCircleButton {...props} className={cn("-ml-2 p-2.5 mobile:hidden", className)}>
+    <DialogCircleButton {...props} className={cn("p-2.5 mobile:hidden", className)}>
       <MaterialSymbolsArrowBackIosNew />
     </DialogCircleButton>
   )
@@ -116,7 +123,7 @@ const MaterialSymbolsArrowBackIosNew = (props: SVGProps<SVGSVGElement>) => <svg 
 
 export function DialogClose({ className, ...props }: ComponentProps<"div">) {
   return (
-    <DialogCircleButton {...props} className={cn("", className)}>
+    <DialogCircleButton {...props} className={cn("hidden mobile:block", className)}>
       <MaterialSymbolsClose />
     </DialogCircleButton>
   )

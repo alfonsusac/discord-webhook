@@ -2,32 +2,49 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Div } from "../ui/div"
 import { Row } from "../ui/row"
-import { WebhookURLInput } from "./WebhookURL"
+import { WebhookURLInput, type WebhookData } from "./WebhookURL"
 import { ContentEditor } from "./payload/Content"
 import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10"
+import { AuthorEditor } from "./payload/Author"
 
 export function App() {
 
-  const [webhookUrl, setWebhookUrl] = useState<string>("")
+  const [webhook, setWebhook] = useState<WebhookData>()
 
-  const [payload, setPayload] = useState<RESTPostAPIWebhookWithTokenJSONBody>({})
+  const payloadRef = useRef<RESTPostAPIWebhookWithTokenJSONBody>({})
 
   return (
     <>
       <Div>
         {/* Webhook URL */}
         <WebhookURLInput
-          onChange={setWebhookUrl}
-          onSend={async () => {
-            // Emulate error after delay 1000ms
-            await fetch(webhookUrl, {
+          onChange={(data) => {
+            console.log(data)
+            setWebhook(data)
+          }}
+          onSend={async (url) => {
+            const res = await fetch(url, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
+              body: JSON.stringify(payloadRef.current)
             })
+            if (!res.ok) {
+              const json = await res.json()
+              if (typeof json === "object") {
+                if (typeof json === "object" && 'code' in json && 'message' in json) {
+                  throw new Error(json.message)
+                }
+                const firstKey = Object.keys(json)[0];
+                if (!firstKey) throw new Error("Failed to send message")
+                if (Array.isArray(json[firstKey])) {
+                  throw new Error(firstKey + ' ' + json[firstKey][0])
+                }
+              }
+              throw new Error("Failed to send message")
+            }
           }}
         />
 
@@ -35,22 +52,46 @@ export function App() {
         <Div className="mt-8">
           {/* Message */}
           <Row className="pl-[3.5rem] relative">
-            {/* PFP */}
-            <div className="rounded-full overflow-hidden absolute left-0 top-0.5">
-              <img src="https://cdn.discordapp.com/embed/avatars/0.png" width="40" height="40" alt="" />
-            </div>
             {/* Text */}
             <Div className="grow gap-1 min-w-0">
+              {/* Avatar */}
+              <div className="rounded-full overflow-hidden absolute left-0 top-0.5 
+      outline outline-0 outline-foreground/10 hover:outline-foreground/20
+      hover:outline-4 cursor-pointer
+      ">
+                <img src="https://cdn.discordapp.com/embed/avatars/0.png" width="40" height="40" alt="" />
+              </div>
               {/* Auhor */}
-              <span className="font-bold tracking-tight">Ray So Spidey Bot
-                <span className="mx-1.5 text-xs p-1 py-0.5 align-[2px] bg-discord-button rounded-md">APP</span>
-                <span className="font-medium text-xs align-[2px] opacity-60">Today at {new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).format(new Date())}</span>
-              </span>
+              <AuthorEditor
+                author={webhook?.name}
+                onChange={(author) => {
+                  payloadRef.current.username = author
+                }}
+              />
 
               {/* Content */}
               <ContentEditor onChange={(content) => {
-                setPayload(prev => ({ ...prev, content }))
-              }} />
+                payloadRef.current.content = content
+              }}
+                initial={`Here’s a message using Discord’s markdown and formatting:
+Text: Text | Bold: **Bold** | Italic: *Italic* | Underline: __Underline__ | Strikethrough: ~~Strikethrough~~ | Code: \`Code\` | Spoiler: ||Spoiler|| | Link: [Link](https://discord.com) | Emojis: 🎨 | Custom emoji: <:meow_coffee:753870956811911219>
+Code Block:
+\`\`\`Code Block\`\`\`
+# Heading
+## Headeing 2
+### Yes
+Block Quote:
+> Block Quote
+Lists
+- Channels: <#766433464055496744>
+- Users: <@194128415954173952>
+- Roles: <@&1068092523085574204>
+Numbered
+1. Hello
+2. World
+Timestamps: <t:1701964800:R> *(Relative)*, <t:1701964800:F> *(Full)*
+`}
+              />
 
               {/* <EmbedEditor onChange
               

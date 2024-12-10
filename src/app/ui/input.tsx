@@ -17,6 +17,7 @@ export function Input(
         "focus-visible:outline-2 ",
         "focus-visible:outline-discord-button/80",
         "focus-visible:shadow-md",
+        "disabled:opacity-40",
         className
       )}
     />

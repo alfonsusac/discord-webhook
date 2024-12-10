@@ -2,35 +2,19 @@ import { closePopover, openPopover, PopoverItem, PopoverMenu } from "@/app/ui/po
 import { Dialog, DialogBack, DialogClose, DialogMenu, useDialog } from "@/app/ui/dialog"
 import { Label } from "@/app/ui/label"
 import { Textarea, useTextarea } from "@/app/ui/textarea"
-import { useVisualViewportHeight } from "@/app/ui/visualViewport"
 import { toHTML } from "@odiffey/discord-markdown"
-import { useEffect, useRef, useState, type SVGProps } from "react"
+import { useState, type SVGProps } from "react"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
 
-const initialContent = `Here’s a message using Discord’s markdown and formatting:
-Text: Text | Bold: **Bold** | Italic: *Italic* | Underline: __Underline__ | Strikethrough: ~~Strikethrough~~ | Code: \`Code\` | Spoiler: ||Spoiler|| | Link: [Link](https://discord.com) | Emojis: 🎨 | Custom emoji: <:meow_coffee:753870956811911219>
-Code Block:
-\`\`\`Code Block\`\`\`
-# Heading
-## Headeing 2
-### Yes
-Block Quote:
-> Block Quote
-Lists
-- Channels: <#766433464055496744>
-- Users: <@194128415954173952>
-- Roles: <@&1068092523085574204>
-Numbered
-1. Hello
-2. World
-Timestamps: <t:1701964800:R> *(Relative)*, <t:1701964800:F> *(Full)*
-`
 export function ContentEditor(props: {
   initial?: string,
   onChange?: (content: string | undefined) => void
 }) {
   const
-    [content, setContent] = useState<string | undefined>(initialContent),
+    [content, setContent] = useState<string | undefined>(() => {
+      props.onChange?.(props.initial)
+      return props.initial
+    }),
     addOrEditContent = () => {
       openDialog()
       if (content === undefined) {
@@ -64,7 +48,7 @@ export function ContentEditor(props: {
             ? (
               <button
                 onClick={addOrEditContent}
-                className="h-9 flex items-center px-2 rounded-md hover:bg-foreground/10 text-foreground/40 cursor-pointer">
+                className="h-9 flex items-center px-2 -mx-2 rounded-md hover:bg-foreground/10 text-foreground/40 cursor-pointer">
                 <MaterialSymbolsAdd className="inline align-[-0.1rem] mr-1" />
                 Click to add content
               </button>
@@ -155,20 +139,24 @@ export function ContentEditor(props: {
         }
       </div>
       <Dialog ref={dialogRef} onClose={closeDialog} className="overflow-visible">
-        <header className="flex items-center gap-1 min-h-6 self-end w-full justify-end">
+        <header>
           <DialogBack onClick={closeDialog} />
-          <div className="grow">Edit Content</div>
-          <div className="relative">
-            <DialogMenu className="peer rounded-md" onClick={openPopover("edit-content-menu")} />
-            <PopoverMenu id="edit-content-menu" className="absolute top-full right-0">
-              <PopoverItem onClick={() => {
-                closePopover("edit-content-menu")()
-                setContent(undefined)
-                closeDialog()
-              }} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
-            </PopoverMenu>
+          {/* <div className="grow"/> */}
+          <div className="grow overflow-hidden truncate">Edit Content</div>
+
+          <div className="ml-auto flex">
+            <div className="relative">
+              <DialogMenu className="peer rounded-md" onClick={openPopover("edit-content-menu")} />
+              <PopoverMenu id="edit-content-menu" className="absolute top-full right-0">
+                <PopoverItem onClick={() => {
+                  closePopover("edit-content-menu")()
+                  setContent(undefined)
+                  closeDialog()
+                }} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
+              </PopoverMenu>
+            </div>
+            <DialogClose onClick={closeDialog} />
           </div>
-          <DialogClose onClick={closeDialog} />
         </header>
         <Label>Content</Label>
         <Textarea

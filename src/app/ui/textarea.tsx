@@ -16,7 +16,7 @@ export function Textarea(
       className={
         cn(
           "w-full",
-          "p-2 px-3 mt-2",
+          "p-2 px-3",
           "rounded-md",
           "bg-black/30",
           "text-foreground antialiased",
