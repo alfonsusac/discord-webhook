@@ -3,6 +3,7 @@ import Image1 from "./1.png";
 import Image2 from "./2.png";
 import Image3 from "./3.png";
 import CursorImg from "./cursor.png";
+import Link from "next/link";
 
 export default function AboutPage() {
   return (
@@ -17,11 +18,11 @@ export default function AboutPage() {
       </header>
 
       <p>
-        This is a simple tool to send Discord Webhook message. A Discord Webhook is a simple way to send messages to a channel. It can be used to send messages to a channel without the need to create a bot.
+        {`This is a simple tool to send Discord Webhook message. A Discord Webhook is a simple way to send messages to a channel. It can be used to send messages to a channel without the need to create a bot.`}
       </p>
 
       <p>
-        To get started with sending messages, you need a webhook URL, you can get one via the "Integrations" tab in your server's settings. Accessible from the server settings, or by clicking on the settings icon next to the channel name.
+        {`To get started with sending messages, you need a webhook URL, you can get one via the "Integrations" tab in your server's settings. Accessible from the server settings, or by clicking on the settings icon next to the channel name.`}
       </p>
 
       <div className="rounded-xl overflow-hidden transition-all hover:shadow-xl max-w-xl relative
@@ -33,7 +34,7 @@ export default function AboutPage() {
       </div>
 
       <p>
-        Proceed in to the integration tab, select a webhook or create a new one and copy the URL.
+        {`Proceed in to the integration tab, select a webhook or create a new one and copy the URL.`}
       </p>
 
       <div className="rounded-xl overflow-hidden transition-all hover:shadow-xl max-w-xl  relative
@@ -45,7 +46,7 @@ export default function AboutPage() {
       </div>
 
       <p>
-        Paste the URL in the input field, type your message and click on the "Send" button. Your message will be sent to the channel.
+        {`Paste the URL in the input field, type your message and click on the "Send" button. Your message will be sent to the channel.`}
       </p>
 
       <div className="rounded-xl overflow-hidden transition-all hover:shadow-xl max-w-xl mx-auto  relative
