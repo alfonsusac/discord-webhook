@@ -1,102 +1,131 @@
 import { cn } from "lazy-cn";
-import { useId, useRef, type ComponentProps, type SVGProps } from "react";
+import { useEffect, useId, useImperativeHandle, useRef, type ComponentProps, type ComponentPropsWithRef, type SVGProps } from "react";
 import { isPointerEventInsideRect } from "../utils/rect";
 import { addBodyOverflowHidden, removeBodyOverflowHidden } from "../utils/body";
 
+function openDialogNode(node: HTMLDialogElement | null) {
+  if (!node) throw new Error("Dialog is not mounted")
+  if (node.open) return
+  node.showModal()
+  addBodyOverflowHidden('dialog' + node.id)
+}
+
+function closeDialogNode(node: HTMLDialogElement | null, cleanupDelay: number) {
+  if (!node) throw new Error("Dialog is not mounted")
+  if (!node.open) return
+  node.close()
+  setTimeout(() => removeBodyOverflowHidden('dialog' + node.id), cleanupDelay)
+}
+
 export function Dialog(
-  { className, onClose, onClick, onPointerDown, ...props }:
-    ComponentProps<"dialog"> & { onClose?: () => void }
+  { className, open, onClose, onOpenChange, onClick, onPointerDown, closeAnimationDuration, ref, ...props }:
+    ComponentPropsWithRef<"dialog"> & {
+      onOpenChange?: (open: boolean) => void,
+      closeAnimationDuration?: number,
+    }
 ) {
+  const openDialogImperative = () => {
+    if (onOpenChange) onOpenChange(true)
+    else openDialogNode(innerRef.current)
+  }
+
+  const closeDialogImperative = () => {
+    if (onOpenChange) onOpenChange(false)
+    else closeDialogNode(innerRef.current, closeAnimationDuration ?? 150)
+  }
+
+  const innerRef = useRef<HTMLDialogElement>(null)
+  useImperativeHandle(ref, () => ({
+    ...innerRef.current!,
+    openDialog: openDialogImperative,
+    closeDialog: closeDialogImperative,
+  }))
+
+  useEffect(() => {
+    if (open === true) openDialogNode(innerRef.current)
+    else if (open === false) closeDialogNode(innerRef.current, closeAnimationDuration ?? 150)
+  }, [open, closeAnimationDuration])
+
   const initialEventPos = useRef({ clientX: 0, clientY: 0 })
   const id = useId()
+
   return (
-    <>
-      <dialog
-        id={id}
-        onClose={() => {
-          removeBodyOverflowHidden('dialog' + id)
-        }}
-        onPointerDown={onPointerDown ?? ((event) => {
-          initialEventPos.current = { clientX: event.clientX, clientY: event.clientY }
-        })}
-        onClick={onClick ?? ((event) => {
-          const
-            rect = event.currentTarget.getBoundingClientRect(),
-            isMouseInsideMouseUp = isPointerEventInsideRect(rect, event),
-            isMouseInsideMouseDown = isPointerEventInsideRect(rect, initialEventPos.current)
+    <dialog
+      id={id} ref={innerRef}
+      onPointerDown={(event) => {
+        initialEventPos.current = { clientX: event.clientX, clientY: event.clientY }
+        onPointerDown?.(event)
+      }}
+      onClick={(event) => {
+        const
+          rect = event.currentTarget.getBoundingClientRect(),
+          isMouseUpInsideDialog = isPointerEventInsideRect(rect, event),
+          isMouseDownInsideDialog = isPointerEventInsideRect(rect, initialEventPos.current)
 
-          if (!isMouseInsideMouseUp && !isMouseInsideMouseDown) {
-            event.currentTarget.close()
-            onClose?.()
-          }
-        })}
-        className={cn(
-          "flex flex-col pointer-events-none open:pointer-events-auto",
-          "select-none",
+        if (!isMouseUpInsideDialog && !isMouseDownInsideDialog) {
+          closeDialogImperative()
+        }
+        onClick?.(event)
+      }}
+      className={cn(
+        "flex flex-col pointer-events-none open:pointer-events-auto",
+        "select-none",
 
-          "transition-all",
-          "opacity-0 open:opacity-100",
-          "scale-75 open:scale-100",
+        "fixed top-0 left-0 -right-2 bottom-0",
 
-          "backdrop:transition-all backdrop:duration-500",
-          "backdrop:opacity-0 open:backdrop:opacity-100",
+        "transition-all",
+        "opacity-0 open:opacity-100",
+        "scale-75 open:scale-100",
 
-          "backdrop:bg-black/30 backdrop:animate-in backdrop:fade-in-80",
+        "backdrop:transition-all backdrop:duration-500",
+        "backdrop:opacity-0 open:backdrop:opacity-100",
 
-          "bg-discord-background text-discord-foreground",
-          "p-4 shadow-lg outline-none border-none",
-          "rounded-none mobile:rounded-md",
-          "m-0 mobile:m-auto",
-          "w-full max-w-mobile",
+        "backdrop:bg-black/30 backdrop:animate-in backdrop:fade-in-80",
 
-          "h-[100svh] mobile:h-min",
-          "max-h-none mobile:max-h-[calc(100svh_-_2rem)]",
+        "bg-discord-background text-discord-foreground",
+        "p-4 shadow-lg outline-none border-none",
+        "rounded-none mobile:rounded-md",
+        "m-0 mobile:m-auto",
+        "w-full max-w-mobile",
 
-          // "pt-0",
-          "[&>header]:text-lg",
-          "[&>header]:font-semibold",
-          "[&>header]:pb-3",
-          "[&>header]:shrink-0",
-          "[&>header]:flex",
-          "[&>header]:items-center",
-          "[&>header]:w-full",
-          "[&>header]:gap-1",
-          "[&>header]:min-h-8",
-          // "[&>header]:pt-4",
-          // "mobile:[&>header]:pt-4",
+        "h-[100svh] mobile:h-min",
+        "max-h-none mobile:max-h-[calc(100svh_-_2rem)]",
 
-          "overflow-visible",
+        "[&>header]:text-lg",
+        "[&>header]:font-semibold",
+        "[&>header]:pb-3",
+        "[&>header]:shrink-0",
+        "[&>header]:flex",
+        "[&>header]:items-center",
+        "[&>header]:w-full",
+        "[&>header]:gap-1",
+        "[&>header]:min-h-8",
 
-          "[&>footer]:mt-5",
-          "[&>footer]:-mx-5",
-          "[&>footer]:-mb-5",
-          "[&>footer]:p-5",
-          "[&>footer]:bg-black/10",
-          
-          className,
-        )}
-        {...props}
-      />
-    </>
+        "overflow-visible",
+
+        "[&>footer]:mt-5",
+        "[&>footer]:-mx-5",
+        "[&>footer]:-mb-5",
+        "[&>footer]:p-5",
+        "[&>footer]:bg-black/10",
+
+        className,
+      )}
+      {...props}
+    />
   )
 }
 
-export function useDialog(callback?: {
-  onOpen?: () => void,
-}) {
-  const ref = useRef<HTMLDialogElement>(null)
-  const open = () => {
-    if (!ref.current) return
-    ref.current.showModal()
-    addBodyOverflowHidden('dialog' + ref.current.id)
-    callback?.onOpen?.()
-  }
-  const close = () => {
-    const dialog = ref.current
-    if (!dialog) return
-    dialog.close()
-  }
-  return [ref, open, close] as const
+export function useDialog() {
+  const ref = useRef<HTMLDialogElement & {
+    openDialog: () => void,
+    closeDialog: () => void,
+  }>(null)
+  return {
+    ref,
+    open: () => ref.current?.openDialog(),
+    close: () => ref.current?.closeDialog(),
+  } as const
 }
 
 export function DialogCircleButton(props: ComponentProps<"div">) {
@@ -105,7 +134,6 @@ export function DialogCircleButton(props: ComponentProps<"div">) {
       {...props}
       className={cn(
         "rounded-full hover:bg-black/10 cursor-pointer w-10 h-10 p-2 [&>svg]:w-full [&>svg]:h-full shrink-0",
-        // "focus-visible:outline-discord-button focus-visible:outline-2 focus-visible:outline",
         props.className
       )}
     />
@@ -138,4 +166,3 @@ export function DialogMenu({ className, ...props }: ComponentProps<"div">) {
   )
 }
 const MdiDotsVertical = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2"></path></svg>
-

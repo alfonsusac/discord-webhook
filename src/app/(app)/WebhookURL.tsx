@@ -5,9 +5,11 @@ import { Row } from "../ui/row";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useMounted } from "../utils/mounted";
+import { ErrorHelperText, HelperTextBox, SuccessHelperText } from "../ui/helper-text";
 
 export type WebhookData = {
-  avatar: string | null;
+  id: string;
+  avatar: string | undefined;
   url: string;
   channel_id: string;
   guild_id: string;
@@ -104,25 +106,23 @@ export function WebhookURLInput(
           })}
         >Send</Button>
       </Row>
-      <Div className="h-4 overflow-hidden text-xs font-semibold">
-        {
-          sent
-            ? <span className="text-green-500">Sent!</span>
-            : invalidWebhookURL
-              ? <span className="text-red-400">Invalid URL</span>
-              : webhookUrl
-                ? loadingWebhookData
-                  ? "Loading..."
-                  : webhookData
-                    ? "code" in webhookData
-                      ? <span className="text-red-400">Unable to find webhook</span>
-                      : !error
-                        ? <span><span className="opacity-80">Sending to </span><span className="font-bold">{webhookData.name}</span></span>
-                        : <span className="text-red-400"><span className="opacity-80">Error sending to {webhookData.name}</span>: {error.message}</span>
-                    : <span className="text-red-400">Unable to fetch data</span>
-                : null
-        }
-      </Div>
+      <HelperTextBox>{
+        sent
+          ? <SuccessHelperText>Sent!</SuccessHelperText>
+          : invalidWebhookURL
+            ? <ErrorHelperText>Invalid URL</ErrorHelperText>
+            : webhookUrl
+              ? loadingWebhookData
+                ? "Loading..."
+                : webhookData
+                  ? "code" in webhookData
+                    ? <ErrorHelperText>Unable to find webhook</ErrorHelperText>
+                    : !error
+                      ? <span><span className="opacity-80">Sending to </span><span className="font-bold">{webhookData.name}</span></span>
+                      : <ErrorHelperText><span className="opacity-80">Error sending to {webhookData.name}</span>: {error.message}</ErrorHelperText>
+                  : <ErrorHelperText>Unable to fetch data</ErrorHelperText>
+              : null
+      }</HelperTextBox>
     </Div>
   )
 }

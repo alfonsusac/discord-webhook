@@ -1,13 +1,25 @@
 import { cn } from "lazy-cn";
-import { useEffect, useImperativeHandle, useRef, type ComponentProps } from "react";
+import { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type ComponentProps, type ComponentPropsWithRef, type RefObject } from "react";
+
+const resizeTextArea = (textarea: HTMLTextAreaElement | null) => {
+  if (!textarea) throw new Error("Textarea is not mounted")
+  textarea.style.height = "auto"
+  textarea.style.height = textarea.scrollHeight + "px"
+}
 
 export function Textarea(
-  { className, onChangeCapture, ref, ...props }: ComponentProps<"textarea">
+  { className, onChangeCapture, ref, ...props }: ComponentPropsWithRef<"textarea">
 ) {
+  const internalRef = useRef<HTMLTextAreaElement>(null)
+  useImperativeHandle(ref, () => ({ ...internalRef.current! }))
+
+  useLayoutEffect(() => {
+    resizeTextArea(internalRef.current)
+  }, [props.value])
 
   return (<>
     <textarea
-      ref={ref}
+      ref={internalRef}
       onChangeCapture={onChangeCapture ?? (({ currentTarget: textarea }) => {
         textarea.style.height = "auto"
         textarea.style.height = textarea.scrollHeight + "px"
@@ -31,19 +43,4 @@ export function Textarea(
     />
   </>
   )
-}
-
-
-export function useTextarea() {
-  const textAreaRef = useRef<HTMLTextAreaElement>(null)
-
-  function resizeTextArea(value?: string) {
-    const textArea = textAreaRef.current
-    if (!textArea) return
-    if (value !== undefined) return textArea.value = value
-    textArea.style.height = "auto"
-    textArea.style.height = textArea.scrollHeight + "px"
-  }
-
-  return [textAreaRef, resizeTextArea] as const
 }

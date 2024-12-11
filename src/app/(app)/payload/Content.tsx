@@ -1,7 +1,7 @@
 import { closePopover, openPopover, PopoverItem, PopoverMenu } from "@/app/ui/popover"
 import { Dialog, DialogBack, DialogClose, DialogMenu, useDialog } from "@/app/ui/dialog"
 import { Label } from "@/app/ui/label"
-import { Textarea, useTextarea } from "@/app/ui/textarea"
+import { Textarea } from "@/app/ui/textarea"
 import { toHTML } from "@odiffey/discord-markdown"
 import { useState, type SVGProps } from "react"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
@@ -12,23 +12,20 @@ export function ContentEditor(props: {
   onChange?: (content: string | undefined) => void
 }) {
   const
-    [content, setContent] = useState<string | undefined>(() => {
-      props.onChange?.(props.initial)
-      return props.initial
-    }),
-    addOrEditContent = () => {
-      openDialog()
-      if (content === undefined) {
-        textareaRef.current!.value = ""
-        setContent('')
-      }
-      resizeTextArea()
-    },
-    removeContent = () => setContent(undefined)
-
-  const [textareaRef, resizeTextArea] = useTextarea()
-
-  const [dialogRef, openDialog, closeDialog] = useDialog({ onOpen: resizeTextArea })
+    [content, setContent]
+      = useState<string | undefined>(() => {
+        props.onChange?.(props.initial)
+        return props.initial
+      }),
+    dialog
+      = useDialog(),
+    addOrEditContent
+      = () => {
+        if (content === undefined) setContent('')
+        dialog.open()
+      },
+    removeContent
+      = () => setContent(undefined)
 
   return (
     <>
@@ -56,7 +53,7 @@ export function ContentEditor(props: {
             )
             : (
               <div className="flex flex-col w-ful min-h-9">
-                <HoverActionGroup>
+                <HoverActionGroup className="opacity-100 mobile:opacity-0">
                   {
                     content === undefined ? (
                       <HoverActionButton onClick={addOrEditContent}><PlusIcon /></HoverActionButton>
@@ -139,11 +136,10 @@ export function ContentEditor(props: {
             )
         }
       </div>
-      <Dialog ref={dialogRef} onClose={closeDialog}>
+      <Dialog ref={dialog.ref}>
         <header>
-          <DialogBack onClick={closeDialog} />
+          <DialogBack onClick={dialog.close} />
           <div className="grow overflow-hidden truncate">Edit Content</div>
-
           <div className="ml-auto flex">
             <div className="relative">
               <DialogMenu className="peer rounded-md" onClick={openPopover("edit-content-menu")} />
@@ -151,17 +147,16 @@ export function ContentEditor(props: {
                 <PopoverItem onClick={() => {
                   closePopover("edit-content-menu")()
                   setContent(undefined)
-                  closeDialog()
+                  dialog.close()
                 }} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
               </PopoverMenu>
             </div>
-            <DialogClose onClick={closeDialog} />
+            <DialogClose onClick={dialog.close} />
           </div>
         </header>
         <Label>Content</Label>
         <Textarea
           className="resize-none overscroll-none"
-          ref={textareaRef}
           value={content}
           onChange={({ target: { value } }) => {
             setContent(value)
@@ -179,10 +174,7 @@ export function ContentEditor(props: {
         {content === undefined && (
           <PopoverItem onClick={() => {
             closePopover("content-context-menu")()
-            openDialog()
-            if (content === undefined) textareaRef.current!.value = ""
-            resizeTextArea()
-            setContent('')
+            addOrEditContent()
           }}>Add Content</PopoverItem>
         )}
       </PopoverMenu>

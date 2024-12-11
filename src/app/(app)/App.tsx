@@ -56,7 +56,7 @@ export function App() {
             {/* Text */}
             <Div className="grow gap-1 min-w-0">
               <AvatarEditor
-                avatar={webhook?.avatar ?? "https://cdn.discordapp.com/embed/avatars/0.png"}
+                avatar={webhook ? "https://cdn.discordapp.com/avatars/" + webhook.id + '/' + webhook.avatar : undefined}
                 onChange={(author) => { payloadRef.current.avatar_url = author }}
               />
               <AuthorEditor
