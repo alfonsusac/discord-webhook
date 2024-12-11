@@ -27,10 +27,18 @@ export function App() {
             setWebhook(data)
           }}
           onSend={async (url) => {
+            console.log("Payload ", payloadRef.current)
             const res = await fetch(url, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payloadRef.current)
+              body: JSON.stringify({
+                ...payloadRef.current,
+                embeds: [
+                  {
+                    title: "Hello",
+                  },
+                ],
+              })
             })
             if (!res.ok) {
               const json = await res.json()

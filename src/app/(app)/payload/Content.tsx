@@ -12,20 +12,22 @@ export function ContentEditor(props: {
   onChange?: (content: string | undefined) => void
 }) {
   const
-    [content, setContent]
-      = useState<string | undefined>(() => {
-        props.onChange?.(props.initial)
-        return props.initial
-      }),
-    dialog
-      = useDialog(),
-    addOrEditContent
-      = () => {
-        if (content === undefined) setContent('')
-        dialog.open()
-      },
+    dialog = useDialog(),
+    [content, setContent] = useState(() => {
+      props.onChange?.(props.initial)
+      return props.initial
+    }),
+    changeInput = (val?: string) => {
+      if (val === undefined || val === "") {
+        setContent(undefined)
+        props.onChange?.(undefined)
+        return
+      }
+      setContent(val)
+      props.onChange?.(val)
+    },
     removeContent
-      = () => setContent(undefined)
+      = () => changeInput(undefined)
 
   return (
     <>
@@ -45,7 +47,7 @@ export function ContentEditor(props: {
           content === undefined
             ? (
               <button
-                onClick={addOrEditContent}
+                onClick={dialog.open}
                 className="h-9 flex items-center px-2 -mx-2 rounded-md hover:bg-foreground/10 text-foreground/40 cursor-pointer">
                 <PlusIcon className="inline align-[-0.1rem] mr-1" />
                 Click to add content
@@ -55,12 +57,10 @@ export function ContentEditor(props: {
               <div className="flex flex-col w-ful min-h-9">
                 <HoverActionGroup className="opacity-100 mobile:opacity-0">
                   {
-                    content === undefined ? (
-                      <HoverActionButton onClick={addOrEditContent}><PlusIcon /></HoverActionButton>
-                    ) : (<>
-                      <HoverActionButton onClick={addOrEditContent}><EditIcon /></HoverActionButton>
+                    content ? (<>
+                      <HoverActionButton onClick={dialog.open}><EditIcon /></HoverActionButton>
                       <HoverActionButton onClick={removeContent}><TrashIcon /></HoverActionButton>
-                    </>)
+                    </>) : null
                   }
                 </HoverActionGroup>
                 <div className="-mt-9">
@@ -146,7 +146,7 @@ export function ContentEditor(props: {
               <PopoverMenu id="edit-content-menu" className="absolute top-full right-0">
                 <PopoverItem onClick={() => {
                   closePopover("edit-content-menu")()
-                  setContent(undefined)
+                  removeContent()
                   dialog.close()
                 }} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
               </PopoverMenu>
@@ -157,11 +157,8 @@ export function ContentEditor(props: {
         <Label>Content</Label>
         <Textarea
           className="resize-none overscroll-none"
-          value={content}
-          onChange={({ target: { value } }) => {
-            setContent(value)
-            props.onChange?.(value)
-          }}
+          value={content ?? ""}
+          onChange={({ target: { value } }) => changeInput(value)}
         />
       </Dialog>
       <PopoverMenu id="content-context-menu" className="fixed">
@@ -174,7 +171,7 @@ export function ContentEditor(props: {
         {content === undefined && (
           <PopoverItem onClick={() => {
             closePopover("content-context-menu")()
-            addOrEditContent()
+            dialog.open()
           }}>Add Content</PopoverItem>
         )}
       </PopoverMenu>
