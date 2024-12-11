@@ -6,11 +6,13 @@ import "../globals.css";
 
 const mono = Roboto_Mono({
   weight: ["400", "500","700"],
-  variable: "--font-mono"
+  variable: "--font-mono",
+  subsets: ["latin"],
 })
 
 const sans = Commissioner({
-  variable: "--font-sans"
+  variable: "--font-sans",
+  subsets: ["latin"],
 })
 
 export const metadata: Metadata = {
