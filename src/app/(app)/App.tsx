@@ -78,8 +78,6 @@ export function App() {
                 onChange={(content) => { payloadRef.current.content = content }}
                 initial={defaultContent}
               />
-              {/* <PollEditor /> */}
-
             </Div>
 
           </Row>
