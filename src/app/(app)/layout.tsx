@@ -73,22 +73,3 @@ export default function RootLayout({
 
 
 
-// To be sent to nextjs-showcase
-// Discord Webhook - Send Discord Webhook with Ease
-/**
-
-I have created a Discord Webhook sender that allows you to send Discord Webhook with ease. You can customize the avatar, username, and content of the message. You can also use Discord's markdown and formatting to style your message. You can also use custom emojis and links in your message. The app is built using Next.js and Tailwind CSS. You can check out the app here: https://discord-webhook.vercel.app
-
-# Features
-- Send Discord Webhook with ease
-- Customize the avatar, username, and content of the message
-- Use Discord's markdown and formatting to style your message
-- Use custom emojis and links in your message
-
-I also made it open source: https://github.com/alfonsusac/discord-webhook
-
-More feautures are coming soon! If you have any feedback or suggestions, feel free to let me know here!
-
-
-
- */
