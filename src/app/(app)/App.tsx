@@ -34,19 +34,6 @@ export function App() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 ...payloadRef.current,
-                poll: {
-                  question: {
-                    text: "What is your favourite colour?",
-                  },
-                  answers: [{
-                    poll_media: { text: "Red" },
-                  }, {
-                    poll_media: { text: "Blue" },
-                  }, {
-                    poll_media: { text: "Green" },
-                  }],
-                  duration: 1,
-                },
               })
             })
             if (!res.ok) {
