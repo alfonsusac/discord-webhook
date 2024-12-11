@@ -6,6 +6,7 @@ import { toHTML } from "@odiffey/discord-markdown"
 import { useState, type SVGProps } from "react"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
 import { EditIcon, PlusIcon, TrashIcon } from "@/app/ui/icons"
+import { PlaceholderActionButton } from "@/app/ui/placeholder-action-button"
 
 export function ContentEditor(props: {
   initial?: string,
@@ -46,25 +47,19 @@ export function ContentEditor(props: {
         {
           content === undefined
             ? (
-              <button
-                onClick={dialog.open}
-                className="h-9 flex items-center px-2 -mx-2 rounded-md hover:bg-foreground/10 text-foreground/40 cursor-pointer">
+              <PlaceholderActionButton onClick={dialog.open}>
                 <PlusIcon className="inline align-[-0.1rem] mr-1" />
                 Click to add content
-              </button>
+              </PlaceholderActionButton>
             )
             : (
-              <div className="flex flex-col w-ful min-h-9">
+              <div className="flex flex-col">
                 <HoverActionGroup className="opacity-100 mobile:opacity-0">
-                  {
-                    content ? (<>
-                      <HoverActionButton onClick={dialog.open}><EditIcon /></HoverActionButton>
-                      <HoverActionButton onClick={removeContent}><TrashIcon /></HoverActionButton>
-                    </>) : null
-                  }
+                  <HoverActionButton onClick={dialog.open}><EditIcon /></HoverActionButton>
+                  <HoverActionButton onClick={removeContent}><TrashIcon /></HoverActionButton>
                 </HoverActionGroup>
                 <div className="-mt-9">
-                  <span className="whitespace-pre-line min-w-0 leading-relaxed
+                  <span className="whitespace-pre-line min-w-0 leading-normal
                   select-none
 
                   [&_.d-emoji]:w-5
@@ -145,8 +140,8 @@ export function ContentEditor(props: {
               <DialogMenu className="peer rounded-md" onClick={openPopover("edit-content-menu")} />
               <PopoverMenu id="edit-content-menu" className="absolute top-full right-0">
                 <PopoverItem onClick={() => {
-                  closePopover("edit-content-menu")()
                   removeContent()
+                  closePopover("edit-content-menu")()
                   dialog.close()
                 }} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
               </PopoverMenu>
@@ -164,8 +159,8 @@ export function ContentEditor(props: {
       <PopoverMenu id="content-context-menu" className="fixed">
         {content !== undefined && (
           <PopoverItem onClick={() => {
-            closePopover("content-context-menu")()
             removeContent()
+            closePopover("content-context-menu")()
           }} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
         )}
         {content === undefined && (

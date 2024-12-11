@@ -17,9 +17,6 @@ export function HoverActionGroup(
         "gap-0.5 self-end flex-initial",
 
         "opacity-0 group-hover:opacity-100",
-        // "pointer-events-none",
-        // "focus:pointer-events-auto",
-
         className,
       )}
       {...props}

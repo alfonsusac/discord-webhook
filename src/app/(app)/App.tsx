@@ -10,6 +10,7 @@ import { ContentEditor } from "./payload/Content"
 import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10"
 import { AuthorEditor } from "./payload/Author"
 import { AvatarEditor } from "./payload/Avatar"
+import { PollEditor } from "./payload/Poll"
 
 export function App() {
 
@@ -33,11 +34,19 @@ export function App() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 ...payloadRef.current,
-                embeds: [
-                  {
-                    title: "Hello",
+                poll: {
+                  question: {
+                    text: "What is your favourite colour?",
                   },
-                ],
+                  answers: [{
+                    poll_media: { text: "Red" },
+                  }, {
+                    poll_media: { text: "Blue" },
+                  }, {
+                    poll_media: { text: "Green" },
+                  }],
+                  duration: 1,
+                },
               })
             })
             if (!res.ok) {
@@ -62,7 +71,7 @@ export function App() {
           {/* Message */}
           <Row className="pl-[3.5rem] relative">
             {/* Text */}
-            <Div className="grow gap-1 min-w-0">
+            <Div className="grow gap-0.5 min-w-0">
               <AvatarEditor
                 avatar={webhook ? "https://cdn.discordapp.com/avatars/" + webhook.id + '/' + webhook.avatar : undefined}
                 onChange={(author) => { payloadRef.current.avatar_url = author }}
@@ -73,7 +82,26 @@ export function App() {
               />
               <ContentEditor
                 onChange={(content) => { payloadRef.current.content = content }}
-                initial={`Here’s a message using Discord’s markdown and formatting:
+                initial={initialContentTest}
+              />
+              {/* <PollEditor /> */}
+
+            </Div>
+
+          </Row>
+
+        </Div>
+
+      </Div>
+    </>
+  )
+}
+
+export function onClickConsoleLog() {
+  console.log("Hello World")
+}
+
+const initialContentTest = `Here’s a message using Discord’s markdown and formatting:
 Text: Text | Bold: **Bold** | Italic: *Italic* | Underline: __Underline__ | Strikethrough: ~~Strikethrough~~ | Code: \`Code\` | Spoiler: ||Spoiler|| | Link: [Link](https://discord.com) | Emojis: 🎨 | Custom emoji: <:meow_coffee:753870956811911219>
 Code Block:
 \`\`\`Code Block\`\`\`
@@ -90,41 +118,7 @@ Numbered
 1. Hello
 2. World
 Timestamps: <t:1701964800:R> *(Relative)*, <t:1701964800:F> *(Full)*
-`}
-              />
+`
 
-              {/* <EmbedEditor onChange
-              
-              /> */}
-
-              {/* Embed */}
-              {/* <Div className="mt-1">
-                <Embed>
-                  <EmbedTitle>Embed Title</EmbedTitle>
-                  <EmbedText>
-                    {`Discohook is a free tool that allows you to personalise your server to make your server stand out from the crowd. The main way it does this is using webhooks, which allows services like Discohook to send any messages with embeds to your server.
-
-To get started with sending messages, you need a webhook URL, you can get one via the "Integrations" tab in your server's settings. If you're having issues creating a webhook, the bot can help you create one for you.
-
-Keep in mind that Discohook can't do automation yet, it only sends messages when you tell it to. If you are looking for an automatic feed or custom commands this isn't the right tool for you.`}
-                  </EmbedText>
-                </Embed>
-                <div className="text-sm font-semibold p-2 px-4 text-foreground/50 hover:bg-white/5 cursor-pointer rounded-md">
-                  + Add More Embed
-                </div>
-              </Div> */}
-
-            </Div>
-
-          </Row>
-
-        </Div>
-
-      </Div>
-    </>
-  )
-}
-
-export function onClickConsoleLog() {
-  console.log("Hello World")
-}
+// for first time users
+const defaultContent = `Welcome to alfon's discord-webhook! The easiest way to personalise your Discord server.`
