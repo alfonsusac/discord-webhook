@@ -13,8 +13,8 @@ export default function Home() {
       <footer className="py-20 flex flex-col gap-2">
         Made by @alfonsusac
         <Row className="text-2xl gap-2 text-discord-foreground/60 hover:*:text-white *:cursor-pointer">
-          <a target="_blank" ><MdiGithub /></a>
-          <a target="_blank" href=""><LineMdTwitterXAlt /></a>
+          <a target="_blank" href="https://github.com/alfonsusac/discord-webhook" ><MdiGithub /></a>
+          <a target="_blank" href="https://x.com/alfonsusac"><LineMdTwitterXAlt /></a>
         </Row>
       </footer>
     </div>
