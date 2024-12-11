@@ -5,9 +5,9 @@ import { App } from "./App";
 export default function Home() {
   return (
     <div className="max-w-2xl mx-auto min-h-screen pb-72">
-      <header className="py-12">
-        <h1 className="text-3xl font-bold tracking-tight">Discord Webhook Sender</h1>
-        <div className="opacity-80 font-bold text-sm">Send Discord Webhook with Ease</div>
+      <header className="py-24 text-center">
+        <h1 className="text-xl font-bold tracking-tight">Discord Webhook Sender</h1>
+        <div className="opacity-80 font-bold text-4xl">Send Discord Webhook with Ease</div>
       </header>
       <App />
       <footer className="py-20 flex flex-col gap-2">

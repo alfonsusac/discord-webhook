@@ -66,6 +66,13 @@ export function App() {
           }}
         />
 
+        <div className="py-4 pb-0 text-center opacity-30 flex flex-row items-start gap-4 mx-auto">
+          <img src="/arrow.svg" className="w-20 h-20 opacity-30"/>
+          <div className="font-medium">
+            Hover over elements to start editing
+          </div>
+        </div>
+
         {/* Webhook Editor */}
         <Div className="mt-8">
           {/* Message */}
@@ -82,7 +89,7 @@ export function App() {
               />
               <ContentEditor
                 onChange={(content) => { payloadRef.current.content = content }}
-                initial={initialContentTest}
+                initial={defaultContent}
               />
               {/* <PollEditor /> */}
 
@@ -121,4 +128,6 @@ Timestamps: <t:1701964800:R> *(Relative)*, <t:1701964800:F> *(Full)*
 `
 
 // for first time users
-const defaultContent = `Welcome to alfon's discord-webhook! The easiest way to personalise your Discord server.`
+const defaultContent = `Welcome to alfon's discord-webhook! The easiest way to personalise your Discord server.
+
+To get started with sending messages, you need a webhook URL, you can get one via the "Integrations" tab in your server's settings. `
