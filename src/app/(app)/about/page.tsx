@@ -13,7 +13,7 @@ export default function AboutPage() {
     [&_p]:text-foreground/80
     ">
       <header className="pt-24 pb-4">
-        <a href="/" className="text-xl font-bold tracking-tight">Discord Webhook Sender</a>
+        <Link href="/" className="text-xl font-bold tracking-tight">Discord Webhook Sender</Link>
         <h1 className="opacity-80 font-bold text-4xl">How to use this?</h1>
       </header>
 
