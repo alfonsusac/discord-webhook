@@ -1,4 +1,4 @@
-import { Dialog, DialogBack, DialogClose, useDialog } from "@/app/ui/dialog"
+import { Dialog, DialogBack, useDialog } from "@/app/ui/dialog"
 import { ErrorHelperText, HelperTextBox } from "@/app/ui/helper-text"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
 import { EditIcon, ResetIcon, TrashIcon } from "@/app/ui/icons"
@@ -49,7 +49,6 @@ export function AuthorEditor(props: {
         <header>
           <DialogBack onClick={dialog.close} />
           <div className="grow">Edit Author</div>
-          <DialogClose onClick={dialog.close} />
         </header>
         <Label>Name</Label>
         <Input

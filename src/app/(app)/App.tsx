@@ -34,7 +34,17 @@ export function App() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 ...payloadRef.current,
-              })
+                ...process.env.NODE_ENV === "development" ? {
+                  poll: {
+                    question: { text: "What is your favourite colour?" },
+                    answers: [
+                      { poll_media: { emoji: { id: "1316668121104257054" }, text: "Red" } },
+                      { poll_media: { emoji: { name: "🟦" }, text: "Blue" } },
+                      { poll_media: { emoji: { name: "🟩" }, text: "Green" } }
+                    ]
+                  }
+                } satisfies RESTPostAPIWebhookWithTokenJSONBody : {}
+              } )
             })
             if (!res.ok) {
               const json = await res.json()
@@ -78,6 +88,7 @@ export function App() {
                 onChange={(content) => { payloadRef.current.content = content }}
                 initial={defaultContent}
               />
+              <PollEditor />
             </Div>
 
           </Row>

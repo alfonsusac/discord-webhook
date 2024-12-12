@@ -97,6 +97,9 @@ export function Dialog(
         "h-[100svh] mobile:h-min",
         "max-h-none mobile:max-h-[calc(100svh_-_2rem)]",
 
+        "overflow-visible",
+
+
         "[&>header]:text-lg",
         "[&>header]:font-semibold",
         "[&>header]:pb-3",
@@ -106,8 +109,6 @@ export function Dialog(
         "[&>header]:w-full",
         "[&>header]:gap-1",
         "[&>header]:min-h-8",
-
-        "overflow-visible",
 
         "[&>footer]:mt-5",
         "[&>footer]:-mx-5",
@@ -148,20 +149,21 @@ export function DialogCircleButton(props: ComponentProps<"div">) {
 
 export function DialogBack({ className, ...props }: ComponentProps<"div">) {
   return (
-    <DialogCircleButton {...props} className={cn("p-2.5 mobile:hidden", className)}>
-      <MaterialSymbolsArrowBackIosNew />
+    <DialogCircleButton {...props} className={cn("p-2.5 -order-1 mobile:order-last", className)}>
+      <MaterialSymbolsArrowBackIosNew className="mobile:hidden" />
+      <MaterialSymbolsClose className="hidden mobile:block" />
     </DialogCircleButton>
   )
 }
 const MaterialSymbolsArrowBackIosNew = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M16 22L6 12L16 2l1.775 1.775L9.55 12l8.225 8.225z"></path></svg>
 
-export function DialogClose({ className, ...props }: ComponentProps<"div">) {
-  return (
-    <DialogCircleButton {...props} className={cn("hidden mobile:block", className)}>
-      <MaterialSymbolsClose />
-    </DialogCircleButton>
-  )
-}
+// export function DialogClose({ className, ...props }: ComponentProps<"div">) {
+//   return (
+//     <DialogCircleButton {...props} className={cn("hidden mobile:block", className)}>
+//       <MaterialSymbolsClose />
+//     </DialogCircleButton>
+//   )
+// }
 const MaterialSymbolsClose = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6z"></path></svg>
 
 export function DialogMenu({ className, ...props }: ComponentProps<"div">) {

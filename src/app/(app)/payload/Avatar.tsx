@@ -1,4 +1,4 @@
-import { Dialog, DialogBack, DialogClose, useDialog } from "@/app/ui/dialog"
+import { Dialog, DialogBack, useDialog } from "@/app/ui/dialog"
 import { ErrorHelperText, HelperTextBox, SuccessHelperText } from "@/app/ui/helper-text"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
 import { EditIcon, ResetIcon } from "@/app/ui/icons"
@@ -53,7 +53,6 @@ export function AvatarEditor(props: {
         <header>
           <DialogBack onClick={dialog.close} />
           <div className="grow">Edit Avatar</div>
-          <DialogClose onClick={dialog.close} />
         </header>
         <Label>URL</Label>
         <Textarea

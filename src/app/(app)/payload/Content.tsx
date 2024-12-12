@@ -1,5 +1,5 @@
 import { closePopover, openPopover, PopoverItem, PopoverMenu } from "@/app/ui/popover"
-import { Dialog, DialogBack, DialogClose, DialogMenu, useDialog } from "@/app/ui/dialog"
+import { Dialog, DialogBack, DialogMenu, useDialog } from "@/app/ui/dialog"
 import { Label } from "@/app/ui/label"
 import { Textarea } from "@/app/ui/textarea"
 import { toHTML } from "@odiffey/discord-markdown"
@@ -114,6 +114,8 @@ export function ContentEditor(props: {
                   [&_ul]:pl-6
                   [&_ol]:list-decimal
                   [&_ol]:pl-6
+                  [&_ol>li]:pl-2
+                  [&_li]:my-1
                 ">
                     <span className="" dangerouslySetInnerHTML={{
                       __html: toHTML(content, {
@@ -146,7 +148,6 @@ export function ContentEditor(props: {
                 }} className="text-red-500 hover:bg-red-500">Remove Content</PopoverItem>
               </PopoverMenu>
             </div>
-            <DialogClose onClick={dialog.close} />
           </div>
         </header>
         <Label>Content</Label>
