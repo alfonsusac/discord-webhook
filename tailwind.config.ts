@@ -21,7 +21,6 @@ export default {
           '66%': { top: '89%', left: '80%' },
           '100%': { top: '33%', left: '20%' },
         },
-        
       },
       animation: {
         'rotate-swing': 'rotate-swing 2s ease-in-out infinite',

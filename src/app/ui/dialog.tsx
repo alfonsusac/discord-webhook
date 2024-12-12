@@ -24,6 +24,8 @@ export function Dialog(
       closeAnimationDuration?: number,
     }
 ) {
+  const cleanupDelay = closeAnimationDuration ?? 150
+
   const openDialogImperative = () => {
     if (onOpenChange) onOpenChange(true)
     else openDialogNode(innerRef.current)
@@ -31,7 +33,7 @@ export function Dialog(
 
   const closeDialogImperative = () => {
     if (onOpenChange) onOpenChange(false)
-    else closeDialogNode(innerRef.current, closeAnimationDuration ?? 150)
+    else closeDialogNode(innerRef.current, cleanupDelay)
   }
 
   const innerRef = useRef<HTMLDialogElement>(null)
@@ -43,7 +45,7 @@ export function Dialog(
 
   useEffect(() => {
     if (open === true) openDialogNode(innerRef.current)
-    else if (open === false) closeDialogNode(innerRef.current, closeAnimationDuration ?? 150)
+    else if (open === false) closeDialogNode(innerRef.current, cleanupDelay)
   }, [open, closeAnimationDuration])
 
   const initialEventPos = useRef({ clientX: 0, clientY: 0 })
@@ -52,6 +54,10 @@ export function Dialog(
   return (
     <dialog
       id={id} ref={innerRef}
+      onClose={(e) => {
+        const node = e.target as HTMLDialogElement
+        setTimeout(() => removeBodyOverflowHidden('dialog' + node.id), cleanupDelay)
+      }}
       onPointerDown={(event) => {
         initialEventPos.current = { clientX: event.clientX, clientY: event.clientY }
         onPointerDown?.(event)

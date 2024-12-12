@@ -115,4 +115,11 @@ Timestamps: <t:1701964800:R> *(Relative)*, <t:1701964800:F> *(Full)*
 // for first time users
 const defaultContent = `Welcome to alfon's discord-webhook! The easiest way to personalise your Discord server.
 
-To get started with sending messages, you need a webhook URL, you can get one via the "Integrations" tab in your server's settings. `
+To get started with sending messages, you need a webhook URL, you can get one via the "Integrations" tab in your server's settings.
+
+1. Access the server settings by clicking on the settings icon next to the channel name.
+2. Proceed to the "Integrations" tab.
+3. Select a webhook or create a new one.
+4. Copy the URL.
+5. Paste the URL in the input field, type your message and click on the "Send" button.
+`
