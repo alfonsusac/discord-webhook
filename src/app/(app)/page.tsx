@@ -8,12 +8,13 @@ export default function Home() {
   return (
     <>
       <header className="py-24 pb-12 md:pb-16 text-center">
-        <h1 className="text-xl font-bold tracking-tight">Discord Webhook Sender</h1>
-        <div className="opacity-80 font-bold text-4xl">Send Discord Webhook with Ease</div>
+        <h1 className="text-xl font-bold tracking-tight opacity-60">Discord Webhook Sender</h1>
+        <div className="font-black text-5xl">Send Discord Webhook with Ease</div>
         <Link href="/about">
-          <Button className="mt-4 bg-discord-foreground/10">How to use?</Button>
+          <Button className="mt-8 bg-discord-foreground/80 dark:bg-discord-foreground/10 dark:text-discord-foreground/90">How to use?</Button>
         </Link>
       </header>
+
       <App />
     </>
   );

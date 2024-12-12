@@ -54,7 +54,7 @@ export function App() {
         />
 
         <div className="py-4 pb-0 text-center opacity-30 flex flex-row items-start gap-4 mx-auto">
-          <img src="/arrow.svg" className="w-20 h-20 opacity-30"/>
+          <img src="/arrow.svg" className="w-20 h-20"/>
           <div className="font-medium">
             Hover over elements to start editing
           </div>

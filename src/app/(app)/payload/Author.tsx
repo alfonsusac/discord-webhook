@@ -40,7 +40,7 @@ export function AuthorEditor(props: {
           {edited && <HoverActionButton onClick={resetAuthor} ><ResetIcon /></HoverActionButton>}
         </HoverActionGroup>
         {author ?? props.author ?? "Spidey Bot"}
-        <span className="mx-1.5 text-xs p-1 py-0.5 align-[2px] bg-discord-button rounded-md">APP</span>
+        <span className="mx-1.5 text-xs p-1 py-0.5 align-[2px] bg-discord-button rounded-md text-white">APP</span>
         <span className="font-medium text-xs align-[2px] opacity-60">Today at {new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).format(new Date())}</span>
       </div>
 

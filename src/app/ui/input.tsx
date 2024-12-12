@@ -10,7 +10,8 @@ export function Input(
       className={cn(
         "min-w-0",
         "px-3 py-2 rounded-md",
-        "bg-black/30",
+        "bg-black/10",
+        "dark:bg-black/30",
         "text-foreground antialiased",
         "transition-all duration-100",
         "outline outline-2 outline-transparent",

@@ -9,7 +9,8 @@ export function Label(
       {...props}
       className={cn(
         "block mb-2",
-        "text-white text-xs font-bold text-foreground/60 uppercase tracking-tight",
+        "text-xs font-bold dark:text-foreground/60 uppercase tracking-tight",
+        "text-foreground",
         className
       )}
     />

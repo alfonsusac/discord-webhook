@@ -18,5 +18,5 @@ export function SuccessHelperText({ className, ...props }: ComponentProps<"span"
   return (<span className={cn("text-green-500", className)} {...props} />)
 }
 export function ErrorHelperText({ className, ...props }: ComponentProps<"span">) {
-  return (<span className={cn("text-red-400", className)} {...props} />)
+  return (<span className={cn("dark:text-red-400 text-red-600", className)} {...props} />)
 }
