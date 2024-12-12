@@ -1,8 +1,8 @@
 import { useEffect, useState, useTransition } from "react";
 import { Div } from "../ui/div";
-import { Label } from "../ui/label";
+import { Label } from "../ui/input/label";
 import { Row } from "../ui/row";
-import { Input } from "../ui/input";
+import { Input } from "../ui/input/input";
 import { Button } from "../ui/button";
 import { useMounted } from "../utils/mounted";
 import { ErrorHelperText, HelperTextBox, SuccessHelperText } from "../ui/helper-text";

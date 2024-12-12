@@ -10,13 +10,16 @@ export default {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        'checkboxtick': `url("data:image/svg+xml;charset=utf-8,%3Csvg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='-4 -4 24 18'%3E%3Cpath stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M1 5.917 5.724 10.5 15 1.5'/%3E%3C/svg%3E"), linear-gradient(rgb(var(--discord-rgb-button)), rgb(var(--discord-rgb-button)))`,
+      },
       keyframes: {
         'rotate-swing': {
           '0%, 100%': { transform: 'rotate(-10deg)' },
           '50%': { transform: 'rotate(0deg)' },
         },
         'spline-movement': {
-          '0%': { top:'33%', left: '20%' },
+          '0%': { top: '33%', left: '20%' },
           '27%': { top: '36%', left: '50%', transform: 'rotate(-10deg)' },
           '66%': { top: '89%', left: '80%' },
           '100%': { top: '33%', left: '20%' },
