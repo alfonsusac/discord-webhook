@@ -51,7 +51,7 @@ export function PollEditor(props: {
   return (
     <ResizeAnimation
       className="min-h-9"
-      dependency={poll}
+      dependency={!!poll}
     >
       {
         poll ? (
@@ -73,7 +73,7 @@ export function PollEditor(props: {
 
 function ResizeAnimation(
   { children, className, dependency, ...props }: ComponentPropsWithoutRef<"div"> & {
-    dependency: any,
+    dependency: boolean,
   }
 ) {
   const ref = useRef<HTMLDivElement>(null)
@@ -81,11 +81,11 @@ function ResizeAnimation(
 
   useEffect(() => {
     ref.current!.classList.add("transition-all")
-  }, [!!dependency])
+  }, [dependency])
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         if (!ref.current) return
         ref.current.style.height = `${ entry.contentRect.height }px`
       }

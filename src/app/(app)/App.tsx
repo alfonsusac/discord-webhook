@@ -64,7 +64,7 @@ export function App() {
         />
 
         <div className="py-4 pb-0 text-center opacity-30 flex flex-row items-start gap-4 mx-auto">
-          <img src="/arrow.svg" className="w-20 h-20"/>
+          <img src="/arrow.svg" className="w-20 h-20" alt=""/>
           <div className="font-medium">
             Hover over elements to start editing
           </div>
@@ -73,7 +73,7 @@ export function App() {
         {/* Webhook Editor */}
         <Div className="mt-8">
           {/* Message */}
-          <Row className="pl-[3.5rem] relative">
+          <Row className="pl-[3rem] mobile:pl-[3.5rem] relative text-[0.9em] mobile:text-[1em]">
             {/* Text */}
             <Div className="grow gap-0.5 min-w-0">
               <AvatarEditor
