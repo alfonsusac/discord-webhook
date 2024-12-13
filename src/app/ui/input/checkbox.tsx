@@ -8,7 +8,7 @@ export function Checkbox(
     <input
       type="checkbox"
       className={cn(
-        "w-6 h-6 rounded-md appearance-none cursor-pointer",
+        "w-5 h-5 rounded-md appearance-none cursor-pointer",
         "bg-black/5",
         "dark:bg-black/20",
         "checked:bg-discord-button",

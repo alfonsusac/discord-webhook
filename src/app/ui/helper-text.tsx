@@ -1,9 +1,9 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, ComponentPropsWithRef } from "react";
 import { Div } from "./div";
 import { cn } from "lazy-cn";
 
 export function HelperTextBox(
-  { className, ...props }: ComponentProps<"div">
+  { className, ...props }: ComponentPropsWithRef<"div">
 ) {
   return (
     <Div

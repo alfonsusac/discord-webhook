@@ -32,6 +32,7 @@ export function HoverActionButton(
   return (
     <div
       className={cn(
+        "shrink-0",
         "h-full aspect-square p-1 text-foreground/80",
         "transition-all",
         "hover:bg-foreground/5",
@@ -40,6 +41,7 @@ export function HoverActionButton(
         "rounded-md cursor-pointer",
         "[&>svg]:w-full",
         "[&>svg]:h-full",
+        "shrink-0",
         className,
       )}
       {...props}

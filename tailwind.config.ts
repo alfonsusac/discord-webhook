@@ -11,7 +11,7 @@ export default {
   theme: {
     extend: {
       backgroundImage: {
-        'checkboxtick': `url("data:image/svg+xml;charset=utf-8,%3Csvg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='-4 -4 24 18'%3E%3Cpath stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M1 5.917 5.724 10.5 15 1.5'/%3E%3C/svg%3E"), linear-gradient(rgb(var(--discord-rgb-button)), rgb(var(--discord-rgb-button)))`,
+        'checkboxtick': `url("data:image/svg+xml;charset=utf-8,%3Csvg aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='-4 -3 24 16'%3E%3Cpath stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M1 5.917 5.724 10.5 15 1.5'/%3E%3C/svg%3E"), linear-gradient(rgb(var(--discord-rgb-button)), rgb(var(--discord-rgb-button)))`,
       },
       keyframes: {
         'rotate-swing': {
@@ -24,10 +24,32 @@ export default {
           '66%': { top: '89%', left: '80%' },
           '100%': { top: '33%', left: '20%' },
         },
+        'list-item-12': {
+          '0%': {
+            height: '0',
+            opacity: '0'
+          },
+          '100%': {
+            height: '3rem',
+            opacity: '1'
+          },
+        },
+        'list-item-16': {
+          '0%': {
+            height: '0',
+            opacity: '0'
+          },
+          '100%': {
+            height: '4rem',
+            opacity: '1'
+          },
+        },
       },
       animation: {
         'rotate-swing': 'rotate-swing 2s ease-in-out infinite',
         'spline': 'spline-movement 3s cubic-bezier(0.25, 0.1, 0.25, 1) infinite',
+        'list-12-add': 'list-item-12 0.2s ease-out',
+        'list-16-add': 'list-item-16 0.2s ease-out',
       },
       colors: {
         background: "rgba(var(--background), 1)",

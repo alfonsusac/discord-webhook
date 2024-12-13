@@ -7,13 +7,21 @@ import { EditIcon, PlusIcon, TrashIcon } from "@/app/ui/icons"
 import { Checkbox } from "@/app/ui/input/checkbox"
 import { Input } from "@/app/ui/input/input"
 import { Label } from "@/app/ui/input/label"
-import { Select } from "@/app/ui/input/select"
 import { PlaceholderActionButton } from "@/app/ui/placeholder-action-button"
 import { Row } from "@/app/ui/row"
+import { useAnimatedArray } from "@/app/utils/animatedArray"
 import type { RESTAPIPoll } from "discord-api-types/v10"
-import { useState } from "react"
+import { cn } from "lazy-cn"
+import { use, useEffect, useRef, useState, type SVGProps } from "react"
 
-type PollPayload = RESTAPIPoll
+type PollPayload = RESTAPIPoll & {
+  answers: PollAnswerPayload[],
+}
+type PollAnswerPayload = RESTAPIPoll['answers'][0] & {
+  id: string,
+}
+
+
 
 
 export function PollEditor(props: {
@@ -21,7 +29,6 @@ export function PollEditor(props: {
   onChange?: (payload: PollPayload | undefined) => void
 }) {
   const
-    pollDialog = useDialog(),
     [poll, setPoll] = useState(() => {
       props.onChange?.(props.initial)
       return props.initial
@@ -38,29 +45,26 @@ export function PollEditor(props: {
     removePoll = () => changeInput(undefined),
     addPoll = () => changeInput({
       question: { text: "Question?" },
-      answers: [{ poll_media: { text: "Answer" } }]
+      answers: [{ poll_media: { text: "Answer" }, id: "1" }]
     })
 
-  return (
-    <>
-      {
-        poll ? (
-          <PollObjectEditor
-            poll={poll}
-            onChange={changeInput}
-            onRemove={removePoll}
-          />
-        ) : (
-          <PlaceholderActionButton onClick={addPoll}>
-            <PlusIcon className="inline align-[-0.1rem] mr-1" />
-            Click to add a Poll
-          </PlaceholderActionButton>
-        )
-      }
-    </>
+  if (!poll) return (
+    <PlaceholderActionButton onClick={addPoll}>
+      <PlusIcon className="inline align-[-0.1rem] mr-1" />
+      Click to add a Poll
+    </PlaceholderActionButton>
   )
-
+  return (
+    <PollObjectEditor
+      poll={poll}
+      onChange={changeInput}
+      onRemove={removePoll}
+    />
+  )
 }
+
+
+
 
 
 
@@ -80,25 +84,49 @@ function PollObjectEditor(props: {
     setQuestion = (text: string) => {
       change({ ...poll, question: { text } })
     },
+    setAllowMultipleAnswer = (value: boolean) => {
+      change({ ...poll, allow_multiselect: value })
+    },
     setDuration = (value: string) => {
       // if value contains char other than number,
-      if (value === "") {
-        change({ ...poll, duration: undefined })
-        return
-      }
+      if (value === "")
+        return change({ ...poll, duration: undefined })
       if (value.match(/\D/)) return
       const intValue = parseInt(value)
+      if (intValue > 768)
+        return change({ ...poll, duration: 768 })
+      return change({ ...poll, duration: intValue })
+    },
+    canAddItem = poll.answers.length < 10
 
-      if (intValue > 768) {
-        change({ ...poll, duration: 768 })
-        return
-      }
-      change({ ...poll, duration: intValue })
+  const {
+    array: answers,
+    uiArray: uiAnswers,
+    changeArray: changeAnswersAnimatedArray,
+    changeUiArray: changeUiAnswersAnimatedArray,
+  } = useAnimatedArray(poll.answers, (newItem) => change({ ...poll, answers: newItem }))
+
+  // Items
+  const
+    appendItem = () => {
+      const answers = [...poll.answers]
+      answers.push({ poll_media: { text: `Answer #${ answers.length + 1 }` }, id: crypto.randomUUID() })
+      changeAnswersAnimatedArray(answers)
+    },
+    removeItem = (id: string) => {
+      changeAnswersAnimatedArray(answers.filter(item => item.id !== id))
+    },
+    changeItem = (id: string, cb: (prev: PollAnswerPayload) => PollAnswerPayload) => {
+      const answers = [...poll.answers]
+      const newAnwer = cb(answers.find(item => item.id === id)!)
+      answers[answers.findIndex(item => item.id === id)] = newAnwer
+      changeAnswersAnimatedArray(answers)
     }
 
 
   return (
     <>
+      {/* Preview */}
       <Div className="p-4 rounded-md bg-black/10 mt-1 group">
         <HoverActionGroup className="opacity-100 mobile:opacity-0">
           <HoverActionButton onClick={pollDialog.open} ><EditIcon /></HoverActionButton>
@@ -106,47 +134,56 @@ function PollObjectEditor(props: {
         </HoverActionGroup>
         <div className="font-semibold -mt-11 min-h-[1.5em]">{poll.question.text}</div>
         <div className="text-sm opacity-80">Select one answer</div>
-        {
-          poll.answers.map((item, i) => {
+        <div>{
+          uiAnswers.map((item) => {
+            const isDeleting = item.___isDeleting
             return (
-              <Row
-                className="bg-white/5 p-4 rounded-lg
-                    transition-all duration-100
-                    outline outline-1 outline-transparent
-                    hover:outline-foreground/20
-                    font-semibold
-                    cursor-pointer items-center hover:shadow-md
-                    group/item
-                    "
-                key={i}>
-                {/* Todo - EMOJI */}
-                {/* <div className="text-2xl leading-[0]">{item.poll_media.emoji?.name}</div> */}
-                <div className="grow">{item.poll_media.text}</div>
-                <EditIcon className="w-5 h-5 opacity-0 group-hover/item:opacity-80 transition-all" />
-              </Row>
+              <Div
+                key={item.id}
+                className={cn(
+                  "opacity-0 h-0 pointer-events-none",
+                  "transition-all duration-200",
+                  isDeleting && "opacity-0 h-0 pointer-events-none",
+                )}
+                onMount={(node) => {
+                  requestAnimationFrame(() => {
+                    node.classList.add("opacity-100", "h-16", "pointer-events-auto")
+                  })
+                }}
+                onTransitionEnd={() => {
+                  if (isDeleting) { changeUiAnswersAnimatedArray((prev) => prev.filter(pitem => pitem.id !== item.id)) }
+                }}
+              >
+                <Row
+                  className={cn(
+                    "h-14",
+                    "bg-white/5 px-4 rounded-lg",
+                    "transition-all duration-100",
+                    "outline outline-1 outline-transparent",
+                    "hover:outline-foreground/20",
+                    "font-semibold",
+                    "cursor-pointer items-center hover:shadow-md",
+                    "group/item relative",
+                  )}>
+                  <div className="grow">{item.poll_media.text}</div>
+                  <div
+                    className="w-4 h-4 border-white border-2 rounded-lg transition-all"
+                    style={{ borderRadius: poll.allow_multiselect ? "50%" : "15%" }}
+                  />
+                </Row>
+              </Div>
             )
           })
-        }
-        <Row
-          className="p-2 h-8 rounded-lg
-                    transition-all duration-100
-                    hover:bg-white/5
-                    cursor-pointer items-center text-foreground/50 hover:text-discord-foreground
-                    "
-        >
-          <PlusIcon className="" />
-          <div className="grow">Add new Item</div>
-        </Row>
-        <Row className="justify-between items-center text-sm mt-3">
+        }</div>
+
+        <Row className="justify-between items-center text-sm mt-0">
           <Row className="opacity-70">
-            <div>0 votes</div>
-            <span className="font-bold">·</span>
             <div>{poll.duration === undefined
               ? `24h`
               : poll.duration === 1
                 ? "59m"
                 : poll.duration > 24
-                  ? `${ Math.round(poll.duration / 24)}d`
+                  ? `${ Math.floor(poll.duration / 24) }d`
                   : `${ poll.duration }h`} left</div>
           </Row>
           <Row className="items-center gap-4">
@@ -155,36 +192,146 @@ function PollObjectEditor(props: {
           </Row>
         </Row>
       </Div>
+
+      {/* Dialog */}
       <Dialog ref={pollDialog.ref}>
         <header>
           <DialogBack onClick={pollDialog.close} />
           <div className="grow">Edit Poll</div>
         </header>
-        <Div className="gap-0">
-          <Label>Question</Label>
-          <Input
-            placeholder="What's your favorite color?"
-            value={poll.question.text ?? ""}
-            onChange={({ target: { value } }) => {
-              setQuestion(value)
-            }} />
-        </Div>
-        <Row className="mt-6 items-center">
-          <Checkbox id="M" />
-          <Label className="m-0 cursor-pointer" htmlFor="M">Allow multiple answer?</Label>
-        </Row>
-        <Div className="gap-0 mt-6">
-          <Label>Duration <span className="font-medium ml-1">(in hours)</span></Label>
-          <Input
-            value={poll.duration === undefined ? "" : poll.duration}
-            onChange={({ target: { value } }) => {
-              setDuration(value)
-            }} />
-          <HelperTextBox className="opacity-60">
-            = {poll.duration === undefined ? `24h` : poll.duration === 1 ? "60 minute(s)" : poll.duration > 24 ? `${ Math.round(poll.duration / 24)} day(s)` : `${ poll.duration } hour(s)`}
-          </HelperTextBox>
-        </Div>
+        <div className="overflow-auto -mx-4 px-4">
+          {/* Question */}
+          <Div className="gap-0">
+            <Label>Question</Label>
+            <Input
+              placeholder="What's your favorite color?"
+              value={poll.question.text ?? ""}
+              onChange={({ target: { value } }) => {
+                setQuestion(value)
+              }} />
+          </Div>
+          {/* Multiple Answer */}
+          <Row className="mt-6 items-center">
+            <Checkbox
+              id="M"
+              checked={poll.allow_multiselect ?? false}
+              onChange={({ target: { checked } }) => {
+                setAllowMultipleAnswer(checked)
+              }}
+            />
+            <Label className="m-0 cursor-pointer" htmlFor="M">Allow multiple answer?</Label>
+          </Row>
+          {/* Duration */}
+          <Div className="gap-0 mt-6">
+            <Label>Duration <span className="font-medium ml-1">(in hours)</span></Label>
+            <Input
+              value={poll.duration === undefined ? "" : poll.duration}
+              onChange={({ target: { value } }) => {
+                setDuration(value)
+              }}
+            />
+            <HelperTextBox className="opacity-60">
+              = {poll.duration === undefined ? `24h` : poll.duration === 1 ? "60 minute(s)" : poll.duration > 24 ? `${ Math.floor(poll.duration / 24) } day(s)` : `${ poll.duration } hour(s)`}
+            </HelperTextBox>
+          </Div>
+          {/* Answers */}
+          <Div className="mt-6 gap-0 overflow-clip -mx-2 px-2">
+            <Label className="">Answers <span className="">({poll.answers.length}/10)</span></Label>
+            {
+              uiAnswers.map((item, i) => {
+                return (
+                  <PollObjectEditorItem
+                    key={item.id}
+                    answer={item}
+                    canDelete={poll.answers.length > 1}
+                    onRemove={() => removeItem(item.id)}
+                    isDeleting={item.___isDeleting}
+                    onChange={(item) => {
+                      changeItem(item.id, () => item)
+                    }}
+                  />
+                )
+              })
+            }
+            <PlaceholderActionButton onClick={appendItem} className={cn(
+              "m-0 gap-2 overflow-hidden transition-all duration-200 ease-in h-9",
+              canAddItem ? "opacity-100" : "opacity-0 h-0 pointer-events-none"
+            )}>
+              <PlusIcon /> Add Answer
+            </PlaceholderActionButton>
+          </Div>
+        </div>
       </Dialog>
     </>
   )
+}
+
+
+
+
+
+
+
+
+function PollObjectEditorItem(props: {
+  answer: PollAnswerPayload,
+  canDelete: boolean,
+  isDeleting: boolean,
+  onRemove: () => void,
+  onChange: (item: PollAnswerPayload) => void,
+}) {
+  const answer = props.answer
+  const canDelete = props.canDelete
+  const onDelete = () => {
+    props.onRemove()
+  }
+  const change = (item: PollAnswerPayload) => {
+    props.onChange(item)
+  }
+
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      ref.current?.classList.add("h-12", "opacity-100", "pointer-events-auto")
+    })
+  }, [])
+
+
+  return (
+    <Row ref={ref} className={cn(
+      "items-start relative gap-2 opacity-0 h-0 pointer-events-none overflow-visible transition-all",
+      props.isDeleting && "opacity-0 h-0 pointer-events-none",
+    )}>
+      <div className="flex w-full">
+        <Input
+          className="w-full"
+          value={answer.poll_media.text ?? ""}
+          onChange={({ target: { value } }) => {
+            change({ ...answer, poll_media: { text: value } })
+          }}
+        />
+      </div>
+      {
+        canDelete && (
+          <div className="h-10 flex items-center">
+            <HoverActionButton
+              onClick={onDelete}
+              className={cn(
+                "w-8 h-8",
+              )}><TrashIcon /></HoverActionButton>
+          </div>
+        )
+      }
+    </Row>
+  )
+}
+
+
+
+export function MaterialSymbolsCircleOutline(props: SVGProps<SVGSVGElement>) {
+  return (<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"></path></svg>)
+}
+
+export function MaterialSymbolsCropSquareOutline(props: SVGProps<SVGSVGElement>) {
+  return (<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M5 21q-.825 0-1.413-.587Q3 19.825 3 19V5q0-.825.587-1.413Q4.175 3 5 3h14q.825 0 1.413.587Q21 4.175 21 5v14q0 .825-.587 1.413Q19.825 21 19 21Zm0-2h14V5H5v14Zm0 0V5v14Z"></path></svg>)
 }

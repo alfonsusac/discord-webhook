@@ -35,14 +35,14 @@ export function App() {
               body: JSON.stringify({
                 ...payloadRef.current,
                 ...process.env.NODE_ENV === "development" ? {
-                  poll: {
-                    question: { text: "What is your favourite colour?" },
-                    answers: [
-                      { poll_media: { emoji: { id: "1316668121104257054" }, text: "Red" } },
-                      { poll_media: { emoji: { name: "🟦" }, text: "Blue" } },
-                      { poll_media: { emoji: { name: "🟩" }, text: "Green" } }
-                    ]
-                  }
+                  // poll: {
+                  //   question: { text: "What is your favourite colour?" },
+                  //   answers: [
+                  //     { poll_media: { emoji: { id: "1316668121104257054" }, text: "Red" } },
+                  //     { poll_media: { emoji: { name: "🟦" }, text: "Blue" } },
+                  //     { poll_media: { emoji: { name: "🟩" }, text: "Green" } }
+                  //   ]
+                  // }
                 } satisfies RESTPostAPIWebhookWithTokenJSONBody : {}
               } )
             })
@@ -88,7 +88,9 @@ export function App() {
                 onChange={(content) => { payloadRef.current.content = content }}
                 initial={defaultContent}
               />
-              <PollEditor />
+              <PollEditor
+                onChange={(poll) => { payloadRef.current.poll = poll }}
+              />
             </Div>
 
           </Row>
