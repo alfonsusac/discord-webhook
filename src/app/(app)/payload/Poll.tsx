@@ -219,7 +219,7 @@ function PollObjectEditor(props: {
                     <div className="grow">{item.poll_media.text}</div>
                     <div
                       className="w-4 h-4 border-white border-2 rounded-lg transition-all"
-                      style={{ borderRadius: poll.allow_multiselect ? "50%" : "15%" }}
+                      style={{ borderRadius: poll.allow_multiselect ? "15%" : "50%" }}
                     />
                   </Row>
                 </Div>
