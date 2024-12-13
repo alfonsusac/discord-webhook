@@ -86,7 +86,8 @@ function ResizeAnimation(
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
       for (let entry of entries) {
-        ref.current!.style.height = `${ entry.contentRect.height }px`
+        if (!ref.current) return
+        ref.current.style.height = `${ entry.contentRect.height }px`
       }
     });
     resizeObserver.observe(innerRef.current!);
@@ -173,7 +174,7 @@ function PollObjectEditor(props: {
             node.classList.add("opacity-100", "h-auto")
           })
         }}
-        className="p-4 rounded-md bg-black/10 mt-1 group transition-all duration-200 h-0 opacity-0"
+        className="p-4 rounded-md border dark:border-none dark:bg-black/10 mt-1 group transition-all duration-200 h-0 opacity-0"
       >
         <HoverActionGroup className="opacity-100 mobile:opacity-0">
           <HoverActionButton onClick={pollDialog.open} ><EditIcon /></HoverActionButton>
@@ -209,7 +210,7 @@ function PollObjectEditor(props: {
                       "h-14",
                       "bg-white/5 px-4 rounded-lg",
                       "transition-all duration-100",
-                      "outline outline-1 outline-transparent",
+                      "outline outline-1 outline-foreground/10 dark:outline-transparent",
                       "hover:outline-foreground/20",
                       "font-semibold",
                       "cursor-pointer items-center hover:shadow-md",

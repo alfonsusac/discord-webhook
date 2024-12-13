@@ -11,7 +11,7 @@ export default function Home() {
         <h1 className="text-xl font-bold tracking-tight opacity-60">Discord Webhook Sender</h1>
         <div className="font-black text-5xl">Send Discord Webhook with Ease</div>
         <Link href="/about">
-          <Button className="mt-8 bg-discord-foreground/80 dark:bg-discord-foreground/10 dark:text-discord-foreground/90">How to use?</Button>
+          <Button className="mt-8 border dark:border-none bg-transparent dark:bg-discord-foreground/10 text-discord-foreground dark:text-discord-foreground/90">How to use?</Button>
         </Link>
       </header>
 
