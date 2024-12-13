@@ -3,7 +3,7 @@ import { Dialog, DialogBack, useDialog } from "@/app/ui/dialog"
 import { Div } from "@/app/ui/div"
 import { HelperTextBox } from "@/app/ui/helper-text"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
-import { EditIcon, PlusIcon, TrashIcon } from "@/app/ui/icons"
+import { EditIcon, PlusIcon, ResetIcon, TrashIcon } from "@/app/ui/icons"
 import { Checkbox } from "@/app/ui/input/checkbox"
 import { Input } from "@/app/ui/input/input"
 import { Label } from "@/app/ui/input/label"
@@ -12,7 +12,7 @@ import { Row } from "@/app/ui/row"
 import { useAnimatedArray } from "@/app/utils/animatedArray"
 import type { RESTAPIPoll } from "discord-api-types/v10"
 import { cn } from "lazy-cn"
-import { use, useEffect, useRef, useState, type SVGProps } from "react"
+import { use, useEffect, useRef, useState, type ComponentProps, type ComponentPropsWithoutRef, type ReactNode, type SVGProps } from "react"
 
 type PollPayload = RESTAPIPoll & {
   answers: PollAnswerPayload[],
@@ -48,21 +48,65 @@ export function PollEditor(props: {
       answers: [{ poll_media: { text: "Answer" }, id: "1" }]
     })
 
-  if (!poll) return (
-    <PlaceholderActionButton onClick={addPoll}>
-      <PlusIcon className="inline align-[-0.1rem] mr-1" />
-      Click to add a Poll
-    </PlaceholderActionButton>
-  )
   return (
-    <PollObjectEditor
-      poll={poll}
-      onChange={changeInput}
-      onRemove={removePoll}
-    />
+    <ResizeAnimation
+      className="min-h-9"
+      dependency={poll}
+    >
+      {
+        poll ? (
+          <PollObjectEditor
+            poll={poll}
+            onChange={changeInput}
+            onRemove={removePoll}
+          />
+        ) : (
+          <PlaceholderActionButton onClick={addPoll} className="w-full">
+            <PlusIcon className="inline align-[-0.1rem] mr-1" />
+            Click to add a Poll
+          </PlaceholderActionButton>
+        )
+      }
+    </ResizeAnimation>
   )
 }
 
+function ResizeAnimation(
+  { children, className, dependency, ...props }: ComponentPropsWithoutRef<"div"> & {
+    dependency: any,
+  }
+) {
+  const ref = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    ref.current!.classList.add("transition-all")
+  }, [!!dependency])
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(entries => {
+      for (let entry of entries) {
+        ref.current!.style.height = `${ entry.contentRect.height }px`
+      }
+    });
+    resizeObserver.observe(innerRef.current!);
+    return () => {
+      resizeObserver.disconnect();
+    }
+  }, [])
+
+  return (
+    <div className={cn("relative transition-all", className)}
+      ref={ref}
+      onTransitionEnd={() => {
+        ref.current!.classList.remove("transition-all")
+      }}>
+      <div className="absolute left-0 top-0 right-0" ref={innerRef}>
+        {children}
+      </div>
+    </div>
+  )
+}
 
 
 
@@ -109,72 +153,78 @@ function PollObjectEditor(props: {
   // Items
   const
     appendItem = () => {
-      const answers = [...poll.answers]
-      answers.push({ poll_media: { text: `Answer #${ answers.length + 1 }` }, id: crypto.randomUUID() })
-      changeAnswersAnimatedArray(answers)
+      changeAnswersAnimatedArray([...answers, { poll_media: { text: `Answer #${ answers.length + 1 }` }, id: Math.random().toString() }])
     },
     removeItem = (id: string) => {
+      console.log("removing", id)
       changeAnswersAnimatedArray(answers.filter(item => item.id !== id))
     },
     changeItem = (id: string, cb: (prev: PollAnswerPayload) => PollAnswerPayload) => {
-      const answers = [...poll.answers]
-      const newAnwer = cb(answers.find(item => item.id === id)!)
-      answers[answers.findIndex(item => item.id === id)] = newAnwer
-      changeAnswersAnimatedArray(answers)
+      changeAnswersAnimatedArray(answers.map(item => item.id === id ? cb(item) : item))
     }
 
 
   return (
     <>
       {/* Preview */}
-      <Div className="p-4 rounded-md bg-black/10 mt-1 group">
+      <Div
+        onMount={(node) => {
+          requestAnimationFrame(() => {
+            node.classList.add("opacity-100", "h-auto")
+          })
+        }}
+        className="p-4 rounded-md bg-black/10 mt-1 group transition-all duration-200 h-0 opacity-0"
+      >
         <HoverActionGroup className="opacity-100 mobile:opacity-0">
           <HoverActionButton onClick={pollDialog.open} ><EditIcon /></HoverActionButton>
           <HoverActionButton onClick={removePoll} ><TrashIcon /></HoverActionButton>
         </HoverActionGroup>
         <div className="font-semibold -mt-11 min-h-[1.5em]">{poll.question.text}</div>
         <div className="text-sm opacity-80">Select one answer</div>
-        <div>{
-          uiAnswers.map((item) => {
-            const isDeleting = item.___isDeleting
-            return (
-              <Div
-                key={item.id}
-                className={cn(
-                  "opacity-0 h-0 pointer-events-none",
-                  "transition-all duration-200",
-                  isDeleting && "opacity-0 h-0 pointer-events-none",
-                )}
-                onMount={(node) => {
-                  requestAnimationFrame(() => {
-                    node.classList.add("opacity-100", "h-16", "pointer-events-auto")
-                  })
-                }}
-                onTransitionEnd={() => {
-                  if (isDeleting) { changeUiAnswersAnimatedArray((prev) => prev.filter(pitem => pitem.id !== item.id)) }
-                }}
-              >
-                <Row
+        <div className="min-h-16">
+          {
+            uiAnswers.map((item, i) => {
+              const isDeleting = item.___isDeleting
+              const isFirst = i === 0
+              return (
+                <Div
+                  key={item.id}
                   className={cn(
-                    "h-14",
-                    "bg-white/5 px-4 rounded-lg",
-                    "transition-all duration-100",
-                    "outline outline-1 outline-transparent",
-                    "hover:outline-foreground/20",
-                    "font-semibold",
-                    "cursor-pointer items-center hover:shadow-md",
-                    "group/item relative",
-                  )}>
-                  <div className="grow">{item.poll_media.text}</div>
-                  <div
-                    className="w-4 h-4 border-white border-2 rounded-lg transition-all"
-                    style={{ borderRadius: poll.allow_multiselect ? "50%" : "15%" }}
-                  />
-                </Row>
-              </Div>
-            )
-          })
-        }</div>
+                    "opacity-0 h-0 pointer-events-none",
+                    "transition-all duration-200",
+                    isFirst && "opacity-100 h-16 pointer-events-auto",
+                    isDeleting && "opacity-0 h-0 pointer-events-none",
+                  )}
+                  onMount={(node) => {
+                    requestAnimationFrame(() => {
+                      node.classList.add("opacity-100", "h-16", "pointer-events-auto")
+                    })
+                  }}
+                  onTransitionEnd={() => {
+                    if (isDeleting) changeUiAnswersAnimatedArray((prev) => prev.filter(pitem => pitem.id !== item.id))
+                  }}
+                >
+                  <Row
+                    className={cn(
+                      "h-14",
+                      "bg-white/5 px-4 rounded-lg",
+                      "transition-all duration-100",
+                      "outline outline-1 outline-transparent",
+                      "hover:outline-foreground/20",
+                      "font-semibold",
+                      "cursor-pointer items-center hover:shadow-md",
+                      "group/item relative",
+                    )}>
+                    <div className="grow">{item.poll_media.text}</div>
+                    <div
+                      className="w-4 h-4 border-white border-2 rounded-lg transition-all"
+                      style={{ borderRadius: poll.allow_multiselect ? "50%" : "15%" }}
+                    />
+                  </Row>
+                </Div>
+              )
+            })
+          }</div>
 
         <Row className="justify-between items-center text-sm mt-0">
           <Row className="opacity-70">
@@ -282,12 +332,9 @@ function PollObjectEditorItem(props: {
 }) {
   const answer = props.answer
   const canDelete = props.canDelete
-  const onDelete = () => {
-    props.onRemove()
-  }
-  const change = (item: PollAnswerPayload) => {
-    props.onChange(item)
-  }
+  const onDelete = props.onRemove
+  const change = props.onChange
+
 
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -295,7 +342,6 @@ function PollObjectEditorItem(props: {
       ref.current?.classList.add("h-12", "opacity-100", "pointer-events-auto")
     })
   }, [])
-
 
   return (
     <Row ref={ref} className={cn(
