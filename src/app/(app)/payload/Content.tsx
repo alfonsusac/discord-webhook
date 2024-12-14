@@ -24,6 +24,7 @@ export function ContentEditor(props: {
         props.onChange?.(undefined)
         return
       }
+      if (val.length > 2000) return
       setContent(val)
       props.onChange?.(val)
     },
@@ -150,7 +151,7 @@ export function ContentEditor(props: {
             </div>
           </div>
         </header>
-        <Label>Content</Label>
+        <Label>Content <span className="font-medium">({content?.length}/2000)</span></Label>
         <Textarea
           className="resize-none overscroll-none"
           value={content ?? ""}

@@ -28,24 +28,49 @@ export function App() {
             setWebhook(data)
           }}
           onSend={async (url) => {
-            console.log("Payload ", payloadRef.current)
-            const res = await fetch(url, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                ...payloadRef.current,
-                ...process.env.NODE_ENV === "development" ? {
-                  // poll: {
-                  //   question: { text: "What is your favourite colour?" },
-                  //   answers: [
-                  //     { poll_media: { emoji: { id: "1316668121104257054" }, text: "Red" } },
-                  //     { poll_media: { emoji: { name: "🟦" }, text: "Blue" } },
-                  //     { poll_media: { emoji: { name: "🟩" }, text: "Green" } }
-                  //   ]
-                  // }
-                } satisfies RESTPostAPIWebhookWithTokenJSONBody : {}
-              } )
-            })
+
+            let payload = {
+              ...payloadRef.current,
+              ...process.env.NODE_ENV === "development" ? {
+                // poll: {
+                //   attachment_ids: [
+                //     { id: "123120293fh0234891g03498gh.txt"}
+                //   ],
+                //   question: {
+                //     text: "What is your favourite colour?",
+                //   },
+                //   answers: [
+                //     { poll_media: { text: "Red" } },
+                //     { poll_media: { text: "Green" } },
+                //     { poll_media: { text: "Blue" } }
+                //   ]
+                // }
+              } satisfies RESTPostAPIWebhookWithTokenJSONBody : {}
+            } 
+
+            console.log("Payload ", payload)
+            
+            const usingForm = false
+            let res: Response
+            if (usingForm) {
+              const form = new FormData()
+              form.set("payload_json", JSON.stringify(payload))
+              // attach example file
+              // form.set("file[0]", new Blob(["Hello World"], { type: "text/plain" }), "123120293fh0234891g03498gh.txt")
+
+              res = await fetch(url, {
+                method: "POST",
+                body: form
+              })
+            } else {
+              res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+              })
+            }
+
+
             if (!res.ok) {
               const json = await res.json()
               if (typeof json === "object") {
@@ -91,6 +116,8 @@ export function App() {
               <PollEditor
                 onChange={(poll) => { payloadRef.current.poll = poll }}
               />
+              {/* <FileUploadEditor
+              /> */}
             </Div>
 
           </Row>
