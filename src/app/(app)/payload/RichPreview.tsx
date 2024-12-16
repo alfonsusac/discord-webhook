@@ -38,18 +38,16 @@ const refreshRichPreviewList = (content: string) => {
 }
 
 export function RichPreviewList(
-  { ref, setContent, ...props }: ComponentPropsWithRef<"div"> & {
-    setContent: (cb: (prev: string | undefined) => string | undefined) => void
+  { ref, onSetContent, ...props }: ComponentPropsWithRef<"div"> & {
+    onSetContent: (cb: (prev: string | undefined) => string | undefined) => void,
   }
 ) {
 
   const innerRef = useRef<HTMLDivElement>(null)
   useImperativeHandle(ref, () => {
-    // console.log("use imperative handle", ref)
     return ({
       ...innerRef.current!,
       refresh: (content: string) => {
-        // console.log("Refresh Rich Preview", content)
         setURLArray(refreshRichPreviewList(content))
       }
     })
@@ -70,7 +68,7 @@ export function RichPreviewList(
               key={url}
               url={url}
               onHide={() => {
-                setContent((prev) => prev?.replace(url, `<${ url }>`))
+                onSetContent((prev) => prev?.replace(url, `<${ url }>`))
               }}
             />
           )
@@ -81,7 +79,7 @@ export function RichPreviewList(
 
 }
 
-export type HTMLRichPreviewDivElement = HTMLDivElement & {
+export type RichPreviewComponent = HTMLDivElement & {
   refresh: (content: string) => void
 }
 

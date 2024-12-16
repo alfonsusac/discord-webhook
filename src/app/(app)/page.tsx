@@ -14,7 +14,6 @@ export default function Home() {
           <Button className="mt-8 border dark:border-none bg-transparent dark:bg-discord-foreground/10 text-discord-foreground dark:text-discord-foreground/90">How to use?</Button>
         </Link>
       </header>
-
       <App />
     </>
   );

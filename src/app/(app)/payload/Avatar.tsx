@@ -8,8 +8,8 @@ import { isValidURL } from "@/app/utils/validation"
 import { useState } from "react"
 
 export function AvatarEditor(props: {
-  avatar?: string,
-  onChange: (avatar?: string) => void
+  default?: string,
+  onChange: (avatar: string | undefined) => void
 }) {
   const
     dialog = useDialog(),
@@ -40,7 +40,7 @@ export function AvatarEditor(props: {
       <div className="absolute left-0 top-0.5 group">
         <div className="rounded-full overflow-hidden peer">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={(lastValid ?? props.avatar ?? "https://cdn.discordapp.com/embed/avatars/0.png") || undefined} width="40" height="40" alt="" />
+          <img src={(lastValid ?? props.default ?? "https://cdn.discordapp.com/embed/avatars/0.png") || undefined} width="40" height="40" alt="" />
         </div>
         <HoverActionGroup className="absolute -top-full left-1/2 -translate-x-1/2">
           <HoverActionButton onClick={dialog.open} ><EditIcon /></HoverActionButton>
@@ -57,7 +57,7 @@ export function AvatarEditor(props: {
         <Label>URL</Label>
         <Textarea
           autoComplete="webhook-author"
-          placeholder={props.avatar}
+          placeholder={props.default}
           value={avatar ?? ""}
           onChange={({ target: { value } }) => {
             changeInput(value)

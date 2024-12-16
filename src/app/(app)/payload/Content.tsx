@@ -3,43 +3,54 @@ import { Dialog, DialogBack, DialogMenu, useDialog } from "@/app/ui/dialog"
 import { Label } from "@/app/ui/input/label"
 import { Textarea } from "@/app/ui/input/textarea"
 import { toHTML } from "@odiffey/discord-markdown"
-import { useEffect, useState, type SVGProps } from "react"
+import { useEffect, useImperativeHandle, useState, type Ref, type SVGProps } from "react"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
 import { EditIcon, PlusIcon, TrashIcon } from "@/app/ui/icons"
 import { PlaceholderActionButton } from "@/app/ui/placeholder-action-button"
 
+type ChangeContentDispatch = (getNew: string | undefined | ((prev: string | undefined) => string | undefined)) => void
+
+export type ContenEditorComponent = {
+  change: ChangeContentDispatch
+}
+
 export function ContentEditor(props: {
-  initial?: string,
+  default?: string,
   onChange?: (content: string | undefined) => void
-  setOnChangeRef?: (fn: (cb: (prev: string | undefined) => string | undefined) => void) => void
+  ref?: Ref<ContenEditorComponent>
+  // setOnChangeRef?: (fn: (cb: (prev: string | undefined) => string | undefined) => void) => void
 }) {
   const
-    dialog = useDialog(),
-    [content, setContent] = useState(props.initial),
-    changeInput = (cb?: string | ((prev: string | undefined) => string | undefined)) => {
+    dialog
+      = useDialog(),
+    [content, setContent]
+      = useState(props.default),
+    changeInput: ChangeContentDispatch
+      = (getNew) => {
 
-      const val = typeof cb === "function" ? cb(content) : cb
+        const val = typeof getNew === "function" ? getNew(content) : getNew
 
-      if (val === undefined || val === "") {
-        setContent(undefined)
-        props.onChange?.(undefined)
-        return
-      }
-      let newVal = val
-      if (val.length > 2000) {
-        newVal = val.slice(0, 2000)
-      }
-      setContent(newVal)
-      props.onChange?.(newVal)
-    },
+        if (val === undefined || val === "") {
+          setContent(undefined)
+          props.onChange?.(undefined)
+          return
+        }
+
+        const newVal = val.slice(0, 2000)
+        setContent(newVal)
+        props.onChange?.(newVal)
+      },
     removeContent
       = () => changeInput(undefined)
 
   useEffect(() => {
-    props.setOnChangeRef?.(changeInput)
-    props.onChange?.(props.initial)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    props.onChange?.(props.default)
+    // eslint-disable-next-line
   }, [])
+
+  useImperativeHandle(props.ref, () => ({
+    change: changeInput
+  }))
 
   return (
     <>

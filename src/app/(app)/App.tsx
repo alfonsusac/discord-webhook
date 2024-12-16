@@ -6,20 +6,41 @@ import { useRef, useState } from "react"
 import { Div } from "../ui/div"
 import { Row } from "../ui/row"
 import { WebhookURLInput, type WebhookData } from "./WebhookURL"
-import { ContentEditor } from "./payload/Content"
+import { ContentEditor, type ContenEditorComponent } from "./payload/Content"
 import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10"
 import { AuthorEditor } from "./payload/Author"
 import { AvatarEditor } from "./payload/Avatar"
 import { PollEditor } from "./payload/Poll"
-import { RichPreviewList, type HTMLRichPreviewDivElement } from "./payload/RichPreview"
+import { RichPreviewList, type RichPreviewComponent } from "./payload/RichPreview"
 
 export function App() {
 
-  const [webhook, setWebhook] = useState<WebhookData | null>()
+  const
+    [webhook, setWebhook]
+      = useState<WebhookData | null>()
 
-  const payloadRef = useRef<RESTPostAPIWebhookWithTokenJSONBody>({})
-  const reRenderImagePreview = useRef<HTMLRichPreviewDivElement>(null)
-  const setContentRef = useRef<(cb: (newData: string | undefined) => string | undefined) => void>()
+  const
+    load
+      = () => {
+        if (typeof localStorage === "undefined") return {}
+        const raw = localStorage?.getItem("payload")
+        const data = raw ? JSON.parse(raw) as RESTPostAPIWebhookWithTokenJSONBody : {}
+        return data
+      },
+    payloadRef
+      = useRef(load()),
+    payload
+      = payloadRef.current,
+    save
+      = () => {
+        localStorage?.setItem("payload", JSON.stringify(payload))
+      }
+
+  const
+    contentEditorRef
+      = useRef<ContenEditorComponent>(null),
+    richPreviewRef
+      = useRef<RichPreviewComponent>(null)
 
   return (
     <>
@@ -32,8 +53,8 @@ export function App() {
           }}
           onSend={async (url) => {
 
-            const payload = {
-              ...payloadRef.current,
+            const finalPayload = {
+              ...payload,
               ...process.env.NODE_ENV === "development" ? {
                 // poll: {
                 //   attachment_ids: [
@@ -51,13 +72,15 @@ export function App() {
               } satisfies RESTPostAPIWebhookWithTokenJSONBody : {}
             }
 
-            console.log("Payload ", payload)
+            console.log("Payload ", finalPayload)
 
-            const usingForm = true
+            // return
+
+            const usingForm = false
             let res: Response
             if (usingForm) {
               const form = new FormData()
-              form.set("payload_json", JSON.stringify(payload))
+              form.set("payload_json", JSON.stringify(finalPayload))
               // attach example file
               form.set("file[0]", new Blob(["Hello World"], { type: "text/plain" }), "testText.txt")
               // // attach example image 
@@ -82,7 +105,7 @@ export function App() {
               res = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(finalPayload)
               })
             }
 
@@ -118,30 +141,20 @@ export function App() {
             {/* Text */}
             <Div className="grow gap-0.5 min-w-0">
               <AvatarEditor
-                avatar={webhook ? "https://cdn.discordapp.com/avatars/" + webhook.id + '/' + webhook.avatar : undefined}
-                onChange={(author) => {
-                  payloadRef.current.avatar_url = author
-                }}
+                default={webhook ? "https://cdn.discordapp.com/avatars/" + webhook.id + '/' + webhook.avatar : undefined}
+                onChange={avatar => payload.avatar_url = avatar}
               />
               <AuthorEditor
-                author={webhook?.name}
-                onChange={(author) => {
-                  payloadRef.current.username = author
-                }}
+                default={webhook?.name}
+                onChange={author => payload.username = author}
               />
               <ContentEditor
+                default={process.env.NODE_ENV === "development" ? initialContentTest : defaultContent}
                 onChange={(content) => {
-                  console.log(reRenderImagePreview.current)
-                  payloadRef.current.content = content
-                  reRenderImagePreview.current?.refresh(content ?? "")
+                  payload.content = content
+                  richPreviewRef.current?.refresh(content ?? "")
                 }}
-                initial={
-                  process.env.NODE_ENV === "development" ? initialContentTest : defaultContent
-                }
-                setOnChangeRef={(onChange) => {
-                  console.log("Mounting setOnChange:", onChange)
-                  setContentRef.current = onChange
-                }}
+                ref={contentEditorRef}
               />
               <PollEditor
                 onChange={(poll) => {
@@ -149,8 +162,8 @@ export function App() {
                 }}
               />
               <RichPreviewList
-                ref={reRenderImagePreview}
-                setContent={(content) => setContentRef.current?.(content)}
+                onSetContent={(content) => contentEditorRef.current?.change(content)}
+                ref={richPreviewRef}
               />
             </Div>
 

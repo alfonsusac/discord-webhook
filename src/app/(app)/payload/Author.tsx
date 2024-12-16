@@ -8,7 +8,7 @@ import { ibetween } from "@/app/utils/validation"
 import { useEffect, useState } from "react"
 
 export function AuthorEditor(props: {
-  author?: string,
+  default?: string,
   onChange: (author?: string) => void
 }) {
   const
@@ -39,7 +39,7 @@ export function AuthorEditor(props: {
           <HoverActionButton onClick={dialog.open} ><EditIcon /></HoverActionButton>
           {edited && <HoverActionButton onClick={resetAuthor} ><ResetIcon /></HoverActionButton>}
         </HoverActionGroup>
-        {author ?? props.author ?? "Spidey Bot"}
+        {author ?? props.default ?? "Spidey Bot"}
         <span className="mx-1.5 text-xs p-1 py-0.5 align-[2px] bg-discord-button rounded-md text-white">APP</span>
         <span className="font-medium text-xs align-[2px] opacity-60">Today at {new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).format(new Date())}</span>
       </div>
@@ -53,7 +53,7 @@ export function AuthorEditor(props: {
         <Label>Name</Label>
         <Input
           autoComplete="webhook-author"
-          placeholder={author ?? props.author ?? "Spidey Bot"}
+          placeholder={author ?? props.default ?? "Spidey Bot"}
           value={author ?? ""}
           onChange={({ target: { value } }) => changeInput(value)}
         />
