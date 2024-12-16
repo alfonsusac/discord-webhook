@@ -8,6 +8,7 @@ export function HoverActionGroup(
     <div
       className={cn(
         "h-9 p-0.5  rounded-lg",
+        "w-fit",
         "flex border",
         "bg-discord-background border-foreground/10",
         "sticky top-4",
@@ -17,8 +18,6 @@ export function HoverActionGroup(
         "gap-0.5 self-end flex-initial",
 
         "opacity-0 group-hover:opacity-100",
-
-
         className,
       )}
       {...props}

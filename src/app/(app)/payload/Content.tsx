@@ -3,7 +3,7 @@ import { Dialog, DialogBack, DialogMenu, useDialog } from "@/app/ui/dialog"
 import { Label } from "@/app/ui/input/label"
 import { Textarea } from "@/app/ui/input/textarea"
 import { toHTML } from "@odiffey/discord-markdown"
-import { useState, type SVGProps } from "react"
+import { useEffect, useState, type SVGProps } from "react"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
 import { EditIcon, PlusIcon, TrashIcon } from "@/app/ui/icons"
 import { PlaceholderActionButton } from "@/app/ui/placeholder-action-button"
@@ -11,25 +11,35 @@ import { PlaceholderActionButton } from "@/app/ui/placeholder-action-button"
 export function ContentEditor(props: {
   initial?: string,
   onChange?: (content: string | undefined) => void
+  setOnChangeRef?: (fn: (cb: (prev: string | undefined) => string | undefined) => void) => void
 }) {
   const
     dialog = useDialog(),
-    [content, setContent] = useState(() => {
-      props.onChange?.(props.initial)
-      return props.initial
-    }),
-    changeInput = (val?: string) => {
+    [content, setContent] = useState(props.initial),
+    changeInput = (cb?: string | ((prev: string | undefined) => string | undefined)) => {
+
+      const val = typeof cb === "function" ? cb(content) : cb
+
       if (val === undefined || val === "") {
         setContent(undefined)
         props.onChange?.(undefined)
         return
       }
-      if (val.length > 2000) return
-      setContent(val)
-      props.onChange?.(val)
+      let newVal = val
+      if (val.length > 2000) {
+        newVal = val.slice(0, 2000)
+      }
+      setContent(newVal)
+      props.onChange?.(newVal)
     },
     removeContent
       = () => changeInput(undefined)
+
+  useEffect(() => {
+    props.setOnChangeRef?.(changeInput)
+    props.onChange?.(props.initial)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <>
@@ -40,6 +50,7 @@ export function ContentEditor(props: {
       overflow-visible min-w-0 *:min-w-0 break-words
       group
       "
+        id="message-content-preview"
         onContextMenu={(ev) => {
           ev.preventDefault()
           openPopover("content-context-menu", ev)()
@@ -125,7 +136,7 @@ export function ContentEditor(props: {
                           user: ({ id }) => `<span class="bg-discord-mention px-1 rounded-sm font-medium text-foreground"><span class="opacity-60 mr-1">@ User:</span>${ id }</span>`,
                           role: ({ id }) => `<span class="bg-discord-mention px-1 rounded-sm font-medium text-foreground"><span class="opacity-60">@ Role:</span>${ id }</span>`,
                           timestamp: ({ timestamp, style }) => `<span class="bg-discord-foreground/10 px-1 rounded-sm text-foreground">${ new Date(timestamp * 1000).toLocaleDateString() } <span class="text-xs align-top opacity-40">${ style === "R" ? "Relative" : "Full" }</span></span>`,
-                        }
+                        },
                       })
                     }} />
                   </span>

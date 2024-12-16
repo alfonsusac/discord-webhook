@@ -11,12 +11,15 @@ import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10"
 import { AuthorEditor } from "./payload/Author"
 import { AvatarEditor } from "./payload/Avatar"
 import { PollEditor } from "./payload/Poll"
+import { RichPreviewList, type HTMLRichPreviewDivElement } from "./payload/RichPreview"
 
 export function App() {
 
   const [webhook, setWebhook] = useState<WebhookData | null>()
 
   const payloadRef = useRef<RESTPostAPIWebhookWithTokenJSONBody>({})
+  const reRenderImagePreview = useRef<HTMLRichPreviewDivElement>(null)
+  const setContentRef = useRef<(cb: (newData: string | undefined) => string | undefined) => void>()
 
   return (
     <>
@@ -24,12 +27,12 @@ export function App() {
         {/* Webhook URL */}
         <WebhookURLInput
           onChange={(data) => {
-            console.log(data)
+            // console.log(data)
             setWebhook(data)
           }}
           onSend={async (url) => {
 
-            let payload = {
+            const payload = {
               ...payloadRef.current,
               ...process.env.NODE_ENV === "development" ? {
                 // poll: {
@@ -46,17 +49,30 @@ export function App() {
                 //   ]
                 // }
               } satisfies RESTPostAPIWebhookWithTokenJSONBody : {}
-            } 
+            }
 
             console.log("Payload ", payload)
-            
-            const usingForm = false
+
+            const usingForm = true
             let res: Response
             if (usingForm) {
               const form = new FormData()
               form.set("payload_json", JSON.stringify(payload))
               // attach example file
-              // form.set("file[0]", new Blob(["Hello World"], { type: "text/plain" }), "123120293fh0234891g03498gh.txt")
+              form.set("file[0]", new Blob(["Hello World"], { type: "text/plain" }), "testText.txt")
+              // // attach example image 
+              // // Create a simple black PNG (1x1 pixel)
+              // const pngBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wIAAgMBAQFBYwAAAABJRU5ErkJggg==";
+
+              // // Decode the Base64 string and convert it to a Blob
+              // const binary = atob(pngBase64);
+              // const array = new Uint8Array(binary.length);
+              // for (let i = 0; i < binary.length; i++) {
+              //   array[i] = binary.charCodeAt(i);
+              // }
+              // const blob = new Blob([array], { type: "image/png" });
+
+              // form.set("file[1]", blob, "textImage.png")
 
               res = await fetch(url, {
                 method: "POST",
@@ -89,7 +105,7 @@ export function App() {
         />
 
         <div className="py-4 pb-0 text-center opacity-30 flex flex-row items-start gap-4 mx-auto">
-          <img src="/arrow.svg" className="w-20 h-20" alt=""/>
+          <img src="/arrow.svg" className="w-20 h-20" alt="" />
           <div className="font-medium">
             Hover over elements to start editing
           </div>
@@ -103,21 +119,39 @@ export function App() {
             <Div className="grow gap-0.5 min-w-0">
               <AvatarEditor
                 avatar={webhook ? "https://cdn.discordapp.com/avatars/" + webhook.id + '/' + webhook.avatar : undefined}
-                onChange={(author) => { payloadRef.current.avatar_url = author }}
+                onChange={(author) => {
+                  payloadRef.current.avatar_url = author
+                }}
               />
               <AuthorEditor
                 author={webhook?.name}
-                onChange={(author) => { payloadRef.current.username = author }}
+                onChange={(author) => {
+                  payloadRef.current.username = author
+                }}
               />
               <ContentEditor
-                onChange={(content) => { payloadRef.current.content = content }}
-                initial={defaultContent}
+                onChange={(content) => {
+                  console.log(reRenderImagePreview.current)
+                  payloadRef.current.content = content
+                  reRenderImagePreview.current?.refresh(content ?? "")
+                }}
+                initial={
+                  process.env.NODE_ENV === "development" ? initialContentTest : defaultContent
+                }
+                setOnChangeRef={(onChange) => {
+                  console.log("Mounting setOnChange:", onChange)
+                  setContentRef.current = onChange
+                }}
               />
               <PollEditor
-                onChange={(poll) => { payloadRef.current.poll = poll }}
+                onChange={(poll) => {
+                  payloadRef.current.poll = poll
+                }}
               />
-              {/* <FileUploadEditor
-              /> */}
+              <RichPreviewList
+                ref={reRenderImagePreview}
+                setContent={(content) => setContentRef.current?.(content)}
+              />
             </Div>
 
           </Row>
@@ -134,8 +168,7 @@ export function onClickConsoleLog() {
 }
 
 const initialContentTest = `Here’s a message using Discord’s markdown and formatting:
-Text: Text | Bold: **Bold** | Italic: *Italic* | Underline: __Underline__ | Strikethrough: ~~Strikethrough~~ | Code: \`Code\` | Spoiler: ||Spoiler|| | Link: [Link](https://discord.com) | Emojis: 🎨 | Custom emoji: <:meow_coffee:753870956811911219>
-Code Block:
+Text: Text | Bold: **Bold** | Italic: *Italic* | Underline: __Underline__ | Strikethrough: ~~Strikethrough~~ | Code: \`Code\` | Spoiler: ||Spoiler|| | Link: [Link](https://discord.com) | Emojis: 🎨 | Custom emoji: <:meow_coffee:753870956811911219> | [image link](https://cdn.discordapp.com/embed/avatars/0.png)
 \`\`\`Code Block\`\`\`
 # Heading
 ## Headeing 2

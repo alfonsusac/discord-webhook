@@ -5,7 +5,7 @@ import { EditIcon, ResetIcon } from "@/app/ui/icons"
 import { Label } from "@/app/ui/input/label"
 import { Textarea } from "@/app/ui/input/textarea"
 import { isValidURL } from "@/app/utils/validation"
-import { useRef, useState } from "react"
+import { useState } from "react"
 
 export function AvatarEditor(props: {
   avatar?: string,
