@@ -3,10 +3,11 @@ import { Dialog, DialogBack, DialogMenu, useDialog } from "@/app/ui/dialog"
 import { Label } from "@/app/ui/input/label"
 import { Textarea } from "@/app/ui/input/textarea"
 import { toHTML } from "@odiffey/discord-markdown"
-import { useEffect, useImperativeHandle, useState, type Ref, type SVGProps } from "react"
+import { memo, useEffect, useImperativeHandle, useState, type Ref, type SVGProps } from "react"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
 import { EditIcon, PlusIcon, TrashIcon } from "@/app/ui/icons"
 import { PlaceholderActionButton } from "@/app/ui/placeholder-action-button"
+import { cn } from "lazy-cn"
 
 type ChangeContentDispatch = (getNew: string | undefined | ((prev: string | undefined) => string | undefined)) => void
 
@@ -14,53 +15,25 @@ export type ContenEditorComponent = {
   change: ChangeContentDispatch
 }
 
-export function ContentEditor(props: {
-  default?: string,
-  onChange?: (content: string | undefined) => void
-  ref?: Ref<ContenEditorComponent>
-  // setOnChangeRef?: (fn: (cb: (prev: string | undefined) => string | undefined) => void) => void
+export const ContentEditor = memo(function ContentEditor(props: {
+  content?: string,
+  onChange?: (content?: string) => void
 }) {
   const
-    dialog
-      = useDialog(),
-    [content, setContent]
-      = useState(props.default),
-    changeInput: ChangeContentDispatch
-      = (getNew) => {
-
-        const val = typeof getNew === "function" ? getNew(content) : getNew
-
-        if (val === undefined || val === "") {
-          setContent(undefined)
-          props.onChange?.(undefined)
-          return
-        }
-
-        const newVal = val.slice(0, 2000)
-        setContent(newVal)
-        props.onChange?.(newVal)
-      },
-    removeContent
-      = () => changeInput(undefined)
-
-  useEffect(() => {
-    props.onChange?.(props.default)
-    // eslint-disable-next-line
-  }, [])
-
-  useImperativeHandle(props.ref, () => ({
-    change: changeInput
-  }))
+    { content, onChange } = props,
+    dialog = useDialog(),
+    changeInput = (val?: string) => onChange?.(val?.slice(0, 2000) || undefined),
+    removeContent = () => changeInput(undefined)
 
   return (
     <>
-      <div className="p-2 py-1 -mx-2 -my-1 
-      rounded-md whitespace-pre 
-      relative outline-2 outline-transparent 
-      flex flex-col
-      overflow-visible min-w-0 *:min-w-0 break-words
-      group
-      "
+      <div className={cn("p-2 py-1 -mx-2 -my-1 ",
+        "rounded-md whitespace-pre ",
+        "relative outline-2 outline-transparent ",
+        "flex flex-col",
+        "overflow-visible min-w-0 *:min-w-0 break-words",
+        "group",
+      )}
         id="message-content-preview"
         onContextMenu={(ev) => {
           ev.preventDefault()
@@ -82,64 +55,64 @@ export function ContentEditor(props: {
                   <HoverActionButton onClick={removeContent}><TrashIcon /></HoverActionButton>
                 </HoverActionGroup>
                 <div className="-mt-9">
-                  <span className="whitespace-pre-line min-w-0 leading-normal
-                  select-none
+                  <span className={cn("whitespace-pre-line min-w-0 leading-normal",
+                    "select-none",
 
-                  [&_.d-emoji]:w-5
-                  [&_.d-emoji]:inline
+                    "[&_.d-emoji]:w-5",
+                    "[&_.d-emoji]:inline",
 
-                  [&_.d-spoiler]:text-white/5
-                  [&_.d-spoiler]:p-1
-                  [&_.d-spoiler]:py-0.5
-                  [&_.d-spoiler]:rounded-md
-                  [&_.d-spoiler]:bg-black/60
+                    "[&_.d-spoiler]:text-white/5",
+                    "[&_.d-spoiler]:p-1",
+                    "[&_.d-spoiler]:py-0.5",
+                    "[&_.d-spoiler]:rounded-md",
+                    "[&_.d-spoiler]:bg-black/60",
 
-                  [&_h1]:text-2xl
-                  [&_h1]:font-bold
-                  [&_h1]:leading-loose
+                    "[&_h1]:text-2xl",
+                    "[&_h1]:font-bold",
+                    "[&_h1]:leading-loose",
 
-                  [&_h2]:text-xl
-                  [&_h2]:font-bold
-                  [&_h2]:leading-loose
+                    "[&_h2]:text-xl",
+                    "[&_h2]:font-bold",
+                    "[&_h2]:leading-loose",
 
-                  [&_h3]:text-base
-                  [&_h3]:font-bold
-                  [&_h3]:leading-loose
+                    "[&_h3]:text-base",
+                    "[&_h3]:font-bold",
+                    "[&_h3]:leading-loose",
 
-                  [&_code]:font-medium
-                  [&_code]:text-[0.8rem]
-                  [&_code]:p-1
-                  [&_code]:py-0.5
-                  [&_code]:bg-black/30
-                  [&_code]:rounded-md
-                  [&_code]:border
-                  [&_code]:border-black/20
-                  [&_code]:align-[1px]
-                  [&_code]:font-mono
+                    "[&_code]:font-medium",
+                    "[&_code]:text-[0.8rem]",
+                    "[&_code]:p-1",
+                    "[&_code]:py-0.5",
+                    "[&_code]:bg-black/30",
+                    "[&_code]:rounded-md",
+                    "[&_code]:border",
+                    "[&_code]:border-black/20",
+                    "[&_code]:align-[1px]",
+                    "[&_code]:font-mono",
 
-                  [&_pre]:bg-black/30
-                  [&_pre]:p-1.5
-                  [&_pre]:rounded-md
-                  [&_pre]:border
-                  [&_pre]:border-black/20
+                    "[&_pre]:bg-black/30",
+                    "[&_pre]:p-1.5",
+                    "[&_pre]:rounded-md",
+                    "[&_pre]:border",
+                    "[&_pre]:border-black/20",
 
-                  [&_pre_code]:border-none
-                  [&_pre_code]:bg-transparent
+                    "[&_pre_code]:border-none",
+                    "[&_pre_code]:bg-transparent",
 
-                  [&_blockquote]:border-l-4
-                  [&_blockquote]:border-foreground/20
-                  [&_blockquote]:pl-3
+                    "[&_blockquote]:border-l-4",
+                    "[&_blockquote]:border-foreground/20",
+                    "[&_blockquote]:pl-3",
 
-                  [&_a]:pointer-events-none
-                  [&_a]:text-discord-link
+                    "[&_a]:pointer-events-none",
+                    "[&_a]:text-discord-link",
 
-                  [&_ul]:list-disc
-                  [&_ul]:pl-6
-                  [&_ol]:list-decimal
-                  [&_ol]:pl-6
-                  [&_ol>li]:pl-2
-                  [&_li]:my-1
-                ">
+                    "[&_ul]:list-disc",
+                    "[&_ul]:pl-6",
+                    "[&_ol]:list-decimal",
+                    "[&_ol]:pl-6",
+                    "[&_ol>li]:pl-2",
+                    "[&_li]:my-1",
+                  )}>
                     <span className="" dangerouslySetInnerHTML={{
                       __html: toHTML(content, {
                         discordCallback: {
@@ -196,4 +169,4 @@ export function ContentEditor(props: {
       </PopoverMenu>
     </>
   )
-}
+})

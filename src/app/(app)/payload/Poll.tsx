@@ -1,9 +1,10 @@
+import { ResizeAnimation } from "@/app/ui/animate-resize"
 import { Button } from "@/app/ui/button"
 import { Dialog, DialogBack, useDialog } from "@/app/ui/dialog"
 import { Div } from "@/app/ui/div"
 import { HelperTextBox } from "@/app/ui/helper-text"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
-import { EditIcon, PlusIcon, ResetIcon, TrashIcon } from "@/app/ui/icons"
+import { EditIcon, PlusIcon, TrashIcon } from "@/app/ui/icons"
 import { Checkbox } from "@/app/ui/input/checkbox"
 import { Input } from "@/app/ui/input/input"
 import { Label } from "@/app/ui/input/label"
@@ -12,9 +13,9 @@ import { Row } from "@/app/ui/row"
 import { useAnimatedArray } from "@/app/utils/animatedArray"
 import type { RESTAPIPoll } from "discord-api-types/v10"
 import { cn } from "lazy-cn"
-import { use, useEffect, useRef, useState, type ComponentProps, type ComponentPropsWithoutRef, type ReactNode, type SVGProps } from "react"
+import { useEffect, useRef, type SVGProps } from "react"
 
-type PollPayload = RESTAPIPoll & {
+export type PollPayload = RESTAPIPoll & {
   answers: PollAnswerPayload[],
 }
 type PollAnswerPayload = RESTAPIPoll['answers'][0] & {
@@ -25,23 +26,12 @@ type PollAnswerPayload = RESTAPIPoll['answers'][0] & {
 
 
 export function PollEditor(props: {
-  initial?: PollPayload,
-  onChange?: (payload: PollPayload | undefined) => void
+  poll: PollPayload | undefined,
+  onChange: (payload: PollPayload | undefined) => void
 }) {
   const
-    [poll, setPoll] = useState(() => {
-      props.onChange?.(props.initial)
-      return props.initial
-    }),
-    changeInput = (val?: PollPayload) => {
-      if (val === undefined) {
-        setPoll(undefined)
-        props.onChange?.(undefined)
-        return
-      }
-      setPoll(val)
-      props.onChange?.(val)
-    },
+    poll = props.poll,
+    changeInput = props.onChange,
     removePoll = () => changeInput(undefined),
     addPoll = () => changeInput({
       question: { text: "Question?" },
@@ -51,7 +41,7 @@ export function PollEditor(props: {
   return (
     <ResizeAnimation
       className="min-h-9"
-      dependency={!!poll}
+      dependency={[!!poll]}
     >
       {
         poll ? (
@@ -71,43 +61,6 @@ export function PollEditor(props: {
   )
 }
 
-function ResizeAnimation(
-  { children, className, dependency, ...props }: ComponentPropsWithoutRef<"div"> & {
-    dependency: boolean,
-  }
-) {
-  const ref = useRef<HTMLDivElement>(null)
-  const innerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    ref.current!.classList.add("transition-all")
-  }, [dependency])
-
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        if (!ref.current) return
-        ref.current.style.height = `${ entry.contentRect.height }px`
-      }
-    });
-    resizeObserver.observe(innerRef.current!);
-    return () => {
-      resizeObserver.disconnect();
-    }
-  }, [])
-
-  return (
-    <div className={cn("relative transition-all", className)}
-      ref={ref}
-      onTransitionEnd={() => {
-        ref.current!.classList.remove("transition-all")
-      }}>
-      <div className="absolute left-0 top-0 right-0" ref={innerRef}>
-        {children}
-      </div>
-    </div>
-  )
-}
 
 
 

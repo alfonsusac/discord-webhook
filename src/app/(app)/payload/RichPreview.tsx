@@ -1,14 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
+import { ResizeAnimation } from "@/app/ui/animate-resize"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
 import { HideIcon, TrashIcon } from "@/app/ui/icons"
+import { useMounted } from "@/app/utils/mounted"
 import { useEffect, useImperativeHandle, useRef, useState, type ComponentPropsWithRef } from "react"
 
 const refreshRichPreviewList = (content: string) => {
-  // console.log(content)
-  const matches = content.match(/(\(?)(\<?)(https:\/\/[^\s]+)/g)
-  // console.log(matches)
-  const urlLike: Record<string, boolean> = {}
-  matches?.forEach((match) => {
+  const matches = content.matchAll(/(\(?)(\<?)(https:\/\/[^\s]+)/g)
+  const urlLike: Record<string, {
+    isHidden: boolean,
+    token: { index: number, hidden: boolean }[],
+  }> = {}
+  for (let { 0: match, index } of matches) {
     const original = match.startsWith("(")
       ? match.slice(1).split(")")[0]
       : match
@@ -23,58 +26,59 @@ const refreshRichPreviewList = (content: string) => {
 
     const isHidden = original.startsWith("<")
 
+    index = match.startsWith("(")
+      ? index + 1
+      : index
 
     if (urlLike[url] !== undefined) {
-      if (urlLike[url] === false)
-        urlLike[url] = isHidden
-      else
-        return
+      if (urlLike[url].isHidden === true)
+        urlLike[url].isHidden = isHidden
+
+      urlLike[url].token.push({ index, hidden: isHidden })
     } else {
-      urlLike[url] = isHidden
+      urlLike[url] = {
+        isHidden,
+        token: [{ index, hidden: isHidden }]
+      }
     }
-  })
-  // console.log(urlLike)
+  }
   return urlLike
 }
 
 export function RichPreviewList(
-  { ref, onSetContent, ...props }: ComponentPropsWithRef<"div"> & {
-    onSetContent: (cb: (prev: string | undefined) => string | undefined) => void,
+  { content, onHide }: {
+    content: string | undefined,
+    onHide: (entries: [index: number, url: string][]) => void,
   }
 ) {
+  const mounted = useMounted()
+  if (!mounted) return null
 
-  const innerRef = useRef<HTMLDivElement>(null)
-  useImperativeHandle(ref, () => {
-    return ({
-      ...innerRef.current!,
-      refresh: (content: string) => {
-        setURLArray(refreshRichPreviewList(content))
-      }
-    })
-  })
-
-  const [urlArray, setURLArray] = useState<Record<string, boolean>>({})
+  const urlArray = refreshRichPreviewList(content || "")
 
   return (
-    <div
-      className="flex flex-col gap-1 items-start select-none"
-      ref={innerRef}
-      {...props}
+    <ResizeAnimation
+      className="duration-500"
+      dependency={[mounted, urlArray]}
     >
-      {
-        Object.entries(urlArray).filter(e => !e[1]).map(([url]) => {
-          return (
-            <RichPreview
-              key={url}
-              url={url}
-              onHide={() => {
-                onSetContent((prev) => prev?.replace(url, `<${ url }>`))
-              }}
-            />
-          )
-        })
-      }
-    </div>
+      <div
+        className="flex flex-col gap-1 items-start select-none"
+      >
+        {
+          Object.entries(urlArray).filter(e => !e[1].isHidden).map(([url, data]) => {
+            return (
+              <RichPreview
+                key={url}
+                url={url}
+                onHide={() => {
+                  onHide(data.token.filter(u => !u.hidden).map(u => [u.index, url]))
+                }}
+              />
+            )
+          })
+        }
+      </div>
+    </ResizeAnimation>
   )
 
 }
@@ -90,38 +94,38 @@ function RichPreview(props: {
 
   const [error, setError] = useState(false)
 
-  useEffect(() => {
-    // TODO - link preview
-    // console.log("Hello?")
-    // const url = new URL(props.url)
-    // const ext = url.pathname.split(".").pop()
-    // const supportedImageExtensions = [
-    //   ".jpeg", ".jpg", ".png", ".gif", ".svg", ".webp", ".bmp", ".tiff", ".avif"
-    // ];
-    // fetch(props.url, {
-    //   mode: "no-cors",
-    // }).then(async res => {
-    //   const contentType = res.headers.get('Content-Type');
-    //   if (contentType && contentType.startsWith('image/')) {
-    //     const blob = await res.blob();
-    //     const reader = new FileReader()
-    //     reader.onload = () => {
-    //       setData({
-    //         type: "image",
-    //         data: reader.result as string
-    //       })
-    //     }
-    //     reader.readAsDataURL(blob)
-    //     // It's an image, proceed to process it
-    //     // return response.blob(); // or response.arrayBuffer() depending on your needs
-    //   } else {
-    //     setData({ type: "url" })
-    //     const html = await res.text()
-    //   }
-    // })
-    // return () => {
-    // }
-  }, [props.url])
+  // useEffect(() => {
+  // TODO - link preview
+  // console.log("Hello?")
+  // const url = new URL(props.url)
+  // const ext = url.pathname.split(".").pop()
+  // const supportedImageExtensions = [
+  //   ".jpeg", ".jpg", ".png", ".gif", ".svg", ".webp", ".bmp", ".tiff", ".avif"
+  // ];
+  // fetch(props.url, {
+  //   mode: "no-cors",
+  // }).then(async res => {
+  //   const contentType = res.headers.get('Content-Type');
+  //   if (contentType && contentType.startsWith('image/')) {
+  //     const blob = await res.blob();
+  //     const reader = new FileReader()
+  //     reader.onload = () => {
+  //       setData({
+  //         type: "image",
+  //         data: reader.result as string
+  //       })
+  //     }
+  //     reader.readAsDataURL(blob)
+  //     // It's an image, proceed to process it
+  //     // return response.blob(); // or response.arrayBuffer() depending on your needs
+  //   } else {
+  //     setData({ type: "url" })
+  //     const html = await res.text()
+  //   }
+  // })
+  // return () => {
+  // }
+  // }, [props.url])
 
   if (error) return null
 

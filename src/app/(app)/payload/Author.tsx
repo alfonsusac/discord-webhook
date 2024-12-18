@@ -5,25 +5,19 @@ import { EditIcon, ResetIcon, TrashIcon } from "@/app/ui/icons"
 import { Input } from "@/app/ui/input/input"
 import { Label } from "@/app/ui/input/label"
 import { ibetween } from "@/app/utils/validation"
+import { cn } from "lazy-cn"
 import { useEffect, useState } from "react"
 
 export function AuthorEditor(props: {
-  default?: string,
+  defaultValue?: string,
+  author?: string,
   onChange: (author?: string) => void
 }) {
   const
+    { defaultValue, author, onChange } = props,
     dialog = useDialog(),
-    [author, setAuthor] = useState<string>(),
     isBetweenRange = ibetween(author?.length, 1, 80),
-    changeInput = (val?: string) => {
-      if (val === undefined || val === "") {
-        setAuthor(undefined)
-        props.onChange(undefined)
-        return
-      }
-      setAuthor(val)
-      props.onChange?.(val)
-    },
+    changeInput = (val?: string) => onChange(val || undefined),
     resetAuthor = () => changeInput(undefined),
     edited = author !== undefined
 
@@ -32,14 +26,14 @@ export function AuthorEditor(props: {
     <>
       {/* Author */}
       <div
-        className="font-bold p-1 px-2 -m-1 -mx-2 rounded-md
-        tracking-tight select-none group relative min-w-0 break-words
-        ">
+        className={cn("font-bold p-1 px-2 -m-1 -mx-2 rounded-md",
+          "tracking-tight select-none group relative min-w-0 break-words")
+        }>
         <HoverActionGroup className="absolute -top-9">
           <HoverActionButton onClick={dialog.open} ><EditIcon /></HoverActionButton>
           {edited && <HoverActionButton onClick={resetAuthor} ><ResetIcon /></HoverActionButton>}
         </HoverActionGroup>
-        {author ?? props.default ?? "Spidey Bot"}
+        {author ?? defaultValue ?? "Spidey Bot"}
         <span className="mx-1.5 text-xs p-1 py-0.5 align-[2px] bg-discord-button rounded-md text-white">APP</span>
         <span className="font-medium text-xs align-[2px] opacity-60">Today at {new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).format(new Date())}</span>
       </div>
@@ -53,7 +47,7 @@ export function AuthorEditor(props: {
         <Label>Name</Label>
         <Input
           autoComplete="webhook-author"
-          placeholder={author ?? props.default ?? "Spidey Bot"}
+          placeholder={defaultValue ?? "Spidey Bot"}
           value={author ?? ""}
           onChange={({ target: { value } }) => changeInput(value)}
         />

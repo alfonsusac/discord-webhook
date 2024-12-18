@@ -5,34 +5,20 @@ import { EditIcon, ResetIcon } from "@/app/ui/icons"
 import { Label } from "@/app/ui/input/label"
 import { Textarea } from "@/app/ui/input/textarea"
 import { isValidURL } from "@/app/utils/validation"
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 export function AvatarEditor(props: {
-  default?: string,
+  defaultValue?: string,
+  avatar: string | undefined,
   onChange: (avatar: string | undefined) => void
 }) {
   const
+    { defaultValue, avatar, onChange } = props,
     dialog = useDialog(),
-    [avatar, setAvatar] = useState<string>(), // current input state
-    [lastValid, setLastValid] = useState<string>(),
     isValid = isValidURL(avatar!),
-    changeInput = (val?: string) => {
-      if (val === undefined || val === "") {
-        setAvatar(undefined)
-        setLastValid(undefined)
-        props.onChange(undefined)
-        return
-      }
-      if (isValidURL(val)) {
-        setAvatar(val)
-        setLastValid(val)
-        props.onChange(val)
-        return
-      }
-      setAvatar(val)
-    },
-    resetAvatar = () => changeInput(undefined),
-    edited = avatar !== undefined
+    edited = avatar !== undefined,
+    changeInput = (val: string | undefined) => onChange(val || undefined),
+    resetAvatar = () => changeInput(undefined)
 
   return (
     <>
@@ -40,7 +26,7 @@ export function AvatarEditor(props: {
       <div className="absolute left-0 top-0.5 group">
         <div className="rounded-full overflow-hidden peer">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={(lastValid ?? props.default ?? "https://cdn.discordapp.com/embed/avatars/0.png") || undefined} width="40" height="40" alt="" />
+          <img src={(avatar ?? defaultValue ?? "https://cdn.discordapp.com/embed/avatars/0.png") || undefined} width="40" height="40" alt="" />
         </div>
         <HoverActionGroup className="absolute -top-full left-1/2 -translate-x-1/2">
           <HoverActionButton onClick={dialog.open} ><EditIcon /></HoverActionButton>
@@ -57,11 +43,9 @@ export function AvatarEditor(props: {
         <Label>URL</Label>
         <Textarea
           autoComplete="webhook-author"
-          placeholder={props.default}
+          placeholder={defaultValue}
           value={avatar ?? ""}
-          onChange={({ target: { value } }) => {
-            changeInput(value)
-          }}
+          onChange={({ target: { value } }) => changeInput(value)}
         />
         <HelperTextBox>{
           (avatar && !isValid) ? <ErrorHelperText>Invalid URL</ErrorHelperText> : null

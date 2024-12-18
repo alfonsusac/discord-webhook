@@ -2,16 +2,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { Div } from "../ui/div"
 import { Row } from "../ui/row"
 import { WebhookURLInput, type WebhookData } from "./WebhookURL"
 import { ContentEditor, type ContenEditorComponent } from "./payload/Content"
-import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10"
+import type { RESTAPIPoll, RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10"
 import { AuthorEditor } from "./payload/Author"
 import { AvatarEditor } from "./payload/Avatar"
-import { PollEditor } from "./payload/Poll"
+import { PollEditor, type PollPayload } from "./payload/Poll"
 import { RichPreviewList, type RichPreviewComponent } from "./payload/RichPreview"
+import { isDev } from "../utils/env"
+import { getNewValue, type Setter } from "../utils/react"
+
+type Payload = RESTPostAPIWebhookWithTokenJSONBody
 
 export function App() {
 
@@ -20,39 +24,66 @@ export function App() {
       = useState<WebhookData | null>()
 
   const
-    load
-      = () => {
-        if (typeof localStorage === "undefined") return {}
-        const raw = localStorage?.getItem("payload")
-        const data = raw ? JSON.parse(raw) as RESTPostAPIWebhookWithTokenJSONBody : {}
-        return data
-      },
-    payloadRef
-      = useRef(load()),
-    payload
-      = payloadRef.current,
-    save
-      = () => {
-        localStorage?.setItem("payload", JSON.stringify(payload))
-      }
+    [payload, setPayload]
+      = useState<Payload>({
+        content: isDev ? linkPreviewTest : defaultContent
+      }),
+    setAvatar
+      = useCallback(
+        (avatar_url: string | undefined) => setPayload(
+          prev => ({ ...prev, avatar_url: avatar_url || undefined })), []),
+    setUsername
+      = useCallback(
+        (username?: string) => setPayload(
+          prev => ({ ...prev, username: username || undefined })), []),
+    setContent
+      = useCallback(
+        (newGetter: Setter<string | undefined>) => setPayload(
+          prev => ({ ...prev, content: getNewValue(newGetter, prev.content)?.slice(0, 2000) || undefined })), []),
+    hideEmbed
+      = useCallback(
+        (entries: [index: number, url: string][]) => {
+          setContent(prev => {
+            let newContent = prev
 
-  const
-    contentEditorRef
-      = useRef<ContenEditorComponent>(null),
-    richPreviewRef
-      = useRef<RichPreviewComponent>(null)
+            if (!newContent) return
+
+            // Sort entries by index in reverse order to prevent index shifting
+            // (highest index first)
+            entries.sort(([a], [b]) => b - a)
+
+            console.log(entries)
+            // Now iterate
+            for (const [index, oldUrl] of entries) {
+              const tempContent =
+                newContent.slice(0, index) +
+                `<${ oldUrl }>` +
+                newContent.slice(index + oldUrl.length);
+              
+              console.log("Init", newContent.slice(0, index))
+              console.log("Last", newContent.slice(index + oldUrl.length))
+              console.log(tempContent)
+              
+              newContent = tempContent as string
+            }
+
+            return newContent
+          })
+        }, []),
+    setPoll
+      = useCallback(
+        (poll?: Payload['poll']) => setPayload(
+          prev => {
+            return { ...prev, poll: poll || undefined }
+          }), [])
 
   return (
     <>
       <Div>
         {/* Webhook URL */}
         <WebhookURLInput
-          onChange={(data) => {
-            // console.log(data)
-            setWebhook(data)
-          }}
+          onChange={(data) => setWebhook(data)}
           onSend={async (url) => {
-
             const finalPayload = {
               ...payload,
               ...process.env.NODE_ENV === "development" ? {
@@ -71,11 +102,7 @@ export function App() {
                 // }
               } satisfies RESTPostAPIWebhookWithTokenJSONBody : {}
             }
-
             console.log("Payload ", finalPayload)
-
-            // return
-
             const usingForm = false
             let res: Response
             if (usingForm) {
@@ -141,29 +168,26 @@ export function App() {
             {/* Text */}
             <Div className="grow gap-0.5 min-w-0">
               <AvatarEditor
-                default={webhook ? "https://cdn.discordapp.com/avatars/" + webhook.id + '/' + webhook.avatar : undefined}
-                onChange={avatar => payload.avatar_url = avatar}
+                defaultValue={webhook ? "https://cdn.discordapp.com/avatars/" + webhook.id + '/' + webhook.avatar : undefined}
+                avatar={payload.avatar_url}
+                onChange={setAvatar}
               />
               <AuthorEditor
-                default={webhook?.name}
-                onChange={author => payload.username = author}
+                defaultValue={webhook?.name}
+                author={payload.username}
+                onChange={setUsername}
               />
               <ContentEditor
-                default={process.env.NODE_ENV === "development" ? initialContentTest : defaultContent}
-                onChange={(content) => {
-                  payload.content = content
-                  richPreviewRef.current?.refresh(content ?? "")
-                }}
-                ref={contentEditorRef}
+                content={payload.content}
+                onChange={setContent}
               />
               <PollEditor
-                onChange={(poll) => {
-                  payloadRef.current.poll = poll
-                }}
+                poll={payload.poll as PollPayload}
+                onChange={setPoll}
               />
               <RichPreviewList
-                onSetContent={(content) => contentEditorRef.current?.change(content)}
-                ref={richPreviewRef}
+                content={payload.content}
+                onHide={hideEmbed}
               />
             </Div>
 
@@ -176,13 +200,22 @@ export function App() {
   )
 }
 
-export function onClickConsoleLog() {
-  console.log("Hello World")
-}
+const linkPreviewTest = `[link](https://www.discord.com/)
+[image link](https://cdn.discordapp.com/embed/avatars/0.png)
+https://cdn.discordapp.com/embed/avatars/0.png
+<https://cdn.discordapp.com/embed/avatars/0.png>
+https://cdn.discordapp.com/embed/avatars/1.png
+https://cdn.discordapp.com/embed/avatars/2.png`
 
 const initialContentTest = `Here’s a message using Discord’s markdown and formatting:
-Text: Text | Bold: **Bold** | Italic: *Italic* | Underline: __Underline__ | Strikethrough: ~~Strikethrough~~ | Code: \`Code\` | Spoiler: ||Spoiler|| | Link: [Link](https://discord.com) | Emojis: 🎨 | Custom emoji: <:meow_coffee:753870956811911219> | [image link](https://cdn.discordapp.com/embed/avatars/0.png)
+Text: Text | Bold: **Bold** | Italic: *Italic* | Underline: __Underline__ | Strikethrough: ~~Strikethrough~~ | Code: \`Code\` | Spoiler: ||Spoiler|| | Link: [Link](https://discord.com) | Emojis: 🎨 | Custom emoji: <:meow_coffee:753870956811911219> | 
 \`\`\`Code Block\`\`\`
+[image link](https://cdn.discordapp.com/embed/avatars/0.png)
+https://cdn.discordapp.com/embed/avatars/0.png
+<https://cdn.discordapp.com/embed/avatars/0.png>
+https://cdn.discordapp.com/embed/avatars/1.png
+https://cdn.discordapp.com/embed/avatars/2.png
+<:meow_coffee:753870956811911219>
 # Heading
 ## Headeing 2
 ### Yes
