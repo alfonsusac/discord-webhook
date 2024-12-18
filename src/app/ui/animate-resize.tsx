@@ -1,9 +1,9 @@
 import { cn } from "lazy-cn"
-import { useEffect, useRef, type ComponentPropsWithoutRef } from "react"
+import { useEffect, useRef, type ComponentPropsWithoutRef, type DependencyList } from "react"
 
 export function ResizeAnimation(
   { children, className, dependency, ...props }: ComponentPropsWithoutRef<"div"> & {
-    dependency: any[],
+    dependency: DependencyList,
   }
 ) {
   const ref = useRef<HTMLDivElement>(null)

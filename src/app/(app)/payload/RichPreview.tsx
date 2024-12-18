@@ -11,7 +11,7 @@ const refreshRichPreviewList = (content: string) => {
     isHidden: boolean,
     token: { index: number, hidden: boolean }[],
   }> = {}
-  for (let { 0: match, index } of matches) {
+  for (const { 0: match, index } of matches) {
     const original = match.startsWith("(")
       ? match.slice(1).split(")")[0]
       : match
@@ -26,7 +26,7 @@ const refreshRichPreviewList = (content: string) => {
 
     const isHidden = original.startsWith("<")
 
-    index = match.startsWith("(")
+    const newindex = match.startsWith("(")
       ? index + 1
       : index
 
@@ -34,11 +34,11 @@ const refreshRichPreviewList = (content: string) => {
       if (urlLike[url].isHidden === true)
         urlLike[url].isHidden = isHidden
 
-      urlLike[url].token.push({ index, hidden: isHidden })
+      urlLike[url].token.push({ index: newindex, hidden: isHidden })
     } else {
       urlLike[url] = {
         isHidden,
-        token: [{ index, hidden: isHidden }]
+        token: [{ index: newindex, hidden: isHidden }]
       }
     }
   }

@@ -65,7 +65,7 @@ export default function RootLayout({
       >
         <div className="w-full min-h-screen">
           <div className="min-h-screen mx-4">
-            <div className="max-w-xl mx-auto min-h-screen pb-72">
+            <div className="max-w-xl mx-auto min-h-screen pb-48">
               {children}
               <footer className="py-20 flex flex-col gap-2">
                 Made by @alfonsusac

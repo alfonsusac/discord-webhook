@@ -69,7 +69,7 @@ export function App() {
 
             return newContent
           })
-        }, []),
+        }, [setContent]),
     setPoll
       = useCallback(
         (poll?: Payload['poll']) => setPayload(
@@ -167,6 +167,10 @@ export function App() {
           <Row className="pl-[3rem] mobile:pl-[3.5rem] relative text-[0.9em] mobile:text-[1em]">
             {/* Text */}
             <Div className="grow gap-0.5 min-w-0">
+              {/* <div className="fixed text-5xl font-black left-[56rem] top-[18rem] z-50">
+                Hide Image Previews <br />
+                With Ease
+              </div> */}
               <AvatarEditor
                 defaultValue={webhook ? "https://cdn.discordapp.com/avatars/" + webhook.id + '/' + webhook.avatar : undefined}
                 avatar={payload.avatar_url}
