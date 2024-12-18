@@ -1,17 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useState } from "react"
 import { Div } from "../ui/div"
 import { Row } from "../ui/row"
 import { WebhookURLInput, type WebhookData } from "./WebhookURL"
-import { ContentEditor, type ContenEditorComponent } from "./payload/Content"
-import type { RESTAPIPoll, RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10"
+import { ContentEditor } from "./payload/Content"
+import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10"
 import { AuthorEditor } from "./payload/Author"
 import { AvatarEditor } from "./payload/Avatar"
 import { PollEditor, type PollPayload } from "./payload/Poll"
-import { RichPreviewList, type RichPreviewComponent } from "./payload/RichPreview"
+import { RichPreviewList } from "./payload/RichPreview"
 import { isDev } from "../utils/env"
 import { getNewValue, type Setter } from "../utils/react"
 
@@ -31,42 +30,32 @@ export function App() {
     setAvatar
       = useCallback(
         (avatar_url: string | undefined) => setPayload(
-          prev => ({ ...prev, avatar_url: avatar_url || undefined })), []),
+          prev => ({ ...prev, avatar_url: avatar_url || undefined })), [setPayload]),
     setUsername
       = useCallback(
         (username?: string) => setPayload(
-          prev => ({ ...prev, username: username || undefined })), []),
+          prev => ({ ...prev, username: username || undefined })), [setPayload]),
     setContent
       = useCallback(
         (newGetter: Setter<string | undefined>) => setPayload(
-          prev => ({ ...prev, content: getNewValue(newGetter, prev.content)?.slice(0, 2000) || undefined })), []),
+          prev => ({ ...prev, content: getNewValue(newGetter, prev.content)?.slice(0, 2000) || undefined })), [setPayload]),
     hideEmbed
       = useCallback(
         (entries: [index: number, url: string][]) => {
           setContent(prev => {
             let newContent = prev
-
             if (!newContent) return
-
             // Sort entries by index in reverse order to prevent index shifting
             // (highest index first)
             entries.sort(([a], [b]) => b - a)
-
             console.log(entries)
-            // Now iterate
             for (const [index, oldUrl] of entries) {
               const tempContent =
                 newContent.slice(0, index) +
                 `<${ oldUrl }>` +
                 newContent.slice(index + oldUrl.length);
-              
-              console.log("Init", newContent.slice(0, index))
-              console.log("Last", newContent.slice(index + oldUrl.length))
-              console.log(tempContent)
-              
               newContent = tempContent as string
             }
-
             return newContent
           })
         }, [setContent]),
@@ -75,14 +64,14 @@ export function App() {
         (poll?: Payload['poll']) => setPayload(
           prev => {
             return { ...prev, poll: poll || undefined }
-          }), [])
+          }), [setPayload])
 
   return (
     <>
       <Div>
         {/* Webhook URL */}
         <WebhookURLInput
-          onChange={(data) => setWebhook(data)}
+          onChange={setWebhook}
           onSend={async (url) => {
             const finalPayload = {
               ...payload,

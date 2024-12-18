@@ -46,7 +46,7 @@ export function Dialog(
   useEffect(() => {
     if (open === true) openDialogNode(innerRef.current)
     else if (open === false) closeDialogNode(innerRef.current, cleanupDelay)
-  }, [open, closeAnimationDuration])
+  }, [open, closeAnimationDuration, cleanupDelay])
 
   const initialEventPos = useRef({ clientX: 0, clientY: 0 })
   const id = useId()

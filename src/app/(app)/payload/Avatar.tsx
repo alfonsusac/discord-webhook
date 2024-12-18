@@ -1,11 +1,10 @@
 import { Dialog, DialogBack, useDialog } from "@/app/ui/dialog"
-import { ErrorHelperText, HelperTextBox, SuccessHelperText } from "@/app/ui/helper-text"
+import { ErrorHelperText, HelperTextBox } from "@/app/ui/helper-text"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
 import { EditIcon, ResetIcon } from "@/app/ui/icons"
 import { Label } from "@/app/ui/input/label"
 import { Textarea } from "@/app/ui/input/textarea"
 import { isValidURL } from "@/app/utils/validation"
-import { useCallback, useEffect, useState } from "react"
 
 export function AvatarEditor(props: {
   defaultValue?: string,

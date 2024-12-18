@@ -17,9 +17,9 @@ export type WebhookData = {
 }
 
 export function WebhookURLInput(
-  props: {
-    onChange?: (webhookData: WebhookData | null) => void,
-    onSend?: (
+  { onChange, onSend }: {
+    onChange: (webhookData: WebhookData | null) => void,
+    onSend: (
       webhookUrl: string,
     ) => Promise<void>
   }
@@ -31,14 +31,17 @@ export function WebhookURLInput(
     if (!local) return
     setWebhookUrl(local)
   })
-  const [loadingWebhookData, setLoadingWebhookData] = useState(false)
-  const [webhookData, setWebhookData] = useState<
-    WebhookData | null | {
-      message: string;
-      code: number
-    }>(null)
-  const invalidWebhookURL
-    = webhookUrl && !webhookUrl.startsWith("https://discord.com/api/webhooks/")
+  const
+    [loadingWebhookData, setLoadingWebhookData]
+      = useState(false),
+    [webhookData, setWebhookData]
+      = useState<
+        WebhookData | null | {
+          message: string;
+          code: number
+        }>(null),
+    invalidWebhookURL
+      = webhookUrl && !webhookUrl.startsWith("https://discord.com/api/webhooks/")
 
   useEffect(() => {
     if (!webhookUrl) return
@@ -50,7 +53,7 @@ export function WebhookURLInput(
         .then(response => response.json())
         .then(data => {
           setWebhookData(data)
-          props.onChange?.(data)
+          onChange(data)
         })
         .catch(error => {
           if (error.name === "AbortError") return
@@ -63,15 +66,21 @@ export function WebhookURLInput(
       clearTimeout(timeoutId)
       abortController.abort()
     }
-  }, [webhookUrl, invalidWebhookURL])
+  }, [webhookUrl, invalidWebhookURL, onChange])
 
-  const [isSending, startTransition] = useTransition()
-  const [error, setError] = useState<Error | null>(null)
-  const [sent, setSent] = useState(false)
-  const triggerSent = () => {
-    setSent(true)
-    setTimeout(() => setSent(false), 3000)
-  }
+  const
+    [isSending, startTransition]
+      = useTransition(),
+    [error, setError]
+      = useState<Error | null>(null),
+    // convert to hook
+    [sent, setSent]
+      = useState(false),
+    triggerSentHelper
+      = () => {
+        setSent(true)
+        setTimeout(() => setSent(false), 3000)
+      }
 
   return (
     <Div>
@@ -83,7 +92,7 @@ export function WebhookURLInput(
           onChange={(event) => {
             const value = event.target.value.trimStart().trimEnd()
             setWebhookUrl(value)
-            props.onChange?.(null)
+            onChange(null)
             localStorage.setItem("webhookUrl", value)
           }}
         />
@@ -93,8 +102,8 @@ export function WebhookURLInput(
             try {
               setError(null)
               try {
-                await props.onSend?.(webhookUrl)
-                triggerSent()
+                await onSend?.(webhookUrl)
+                triggerSentHelper()
               } catch (error) {
                 if (error instanceof Error) setError(error)
                 else console.log(error)

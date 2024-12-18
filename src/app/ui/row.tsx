@@ -1,5 +1,5 @@
 import { cn } from "lazy-cn";
-import type { ComponentProps, DetailedHTMLProps, HTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 
 export function Row(
   {

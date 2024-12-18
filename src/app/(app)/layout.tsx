@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Anonymous_Pro, Azeret_Mono, Commissioner, Fira_Code, Fira_Mono, Geist_Mono, IBM_Plex_Mono, Reddit_Mono, Roboto_Mono, Source_Code_Pro } from "next/font/google";
-import localFont from "next/font/local";
+import { Commissioner, Roboto_Mono } from "next/font/google";
 import "../globals.css";
 import { Row } from "../ui/row";
 import type { SVGProps } from "react";

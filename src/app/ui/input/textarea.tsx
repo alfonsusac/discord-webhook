@@ -1,5 +1,5 @@
 import { cn } from "lazy-cn";
-import { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type ComponentProps, type ComponentPropsWithRef, type RefObject } from "react";
+import { useImperativeHandle, useLayoutEffect, useRef, type ComponentPropsWithRef } from "react";
 
 const resizeTextArea = (textarea: HTMLTextAreaElement | null) => {
   if (!textarea) throw new Error("Textarea is not mounted")

@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import { ResizeAnimation } from "@/app/ui/animate-resize"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
-import { HideIcon, TrashIcon } from "@/app/ui/icons"
+import { HideIcon } from "@/app/ui/icons"
 import { useMounted } from "@/app/utils/mounted"
-import { useEffect, useImperativeHandle, useRef, useState, type ComponentPropsWithRef } from "react"
+import { useState } from "react"
 
 const refreshRichPreviewList = (content: string) => {
   const matches = content.matchAll(/(\(?)(\<?)(https:\/\/[^\s]+)/g)

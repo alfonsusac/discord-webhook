@@ -1,12 +1,11 @@
 import { Dialog, DialogBack, useDialog } from "@/app/ui/dialog"
 import { ErrorHelperText, HelperTextBox } from "@/app/ui/helper-text"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
-import { EditIcon, ResetIcon, TrashIcon } from "@/app/ui/icons"
+import { EditIcon, ResetIcon } from "@/app/ui/icons"
 import { Input } from "@/app/ui/input/input"
 import { Label } from "@/app/ui/input/label"
 import { ibetween } from "@/app/utils/validation"
 import { cn } from "lazy-cn"
-import { useEffect, useState } from "react"
 
 export function AuthorEditor(props: {
   defaultValue?: string,

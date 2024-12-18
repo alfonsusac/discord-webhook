@@ -1,5 +1,3 @@
-import type { SVGProps } from "react";
-import { Row } from "../ui/row";
 import { App } from "./App";
 import { Button } from "../ui/button";
 import Link from "next/link";

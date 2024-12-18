@@ -3,7 +3,7 @@ import { Dialog, DialogBack, DialogMenu, useDialog } from "@/app/ui/dialog"
 import { Label } from "@/app/ui/input/label"
 import { Textarea } from "@/app/ui/input/textarea"
 import { toHTML } from "@odiffey/discord-markdown"
-import { memo, useEffect, useImperativeHandle, useState, type Ref, type SVGProps } from "react"
+import { memo } from "react"
 import { HoverActionButton, HoverActionGroup } from "@/app/ui/hover-action-button"
 import { EditIcon, PlusIcon, TrashIcon } from "@/app/ui/icons"
 import { PlaceholderActionButton } from "@/app/ui/placeholder-action-button"
@@ -19,6 +19,7 @@ export const ContentEditor = memo(function ContentEditor(props: {
   content?: string,
   onChange?: (content?: string) => void
 }) {
+  console.log("ContentEditor")
   const
     { content, onChange } = props,
     dialog = useDialog(),
